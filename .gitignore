@@ -1,0 +1,36 @@
+# Laravel framework
+/vendor/
+/node_modules/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Database
+/database/*.sqlite
+/database/*.sqlite-journal
+
+# PHP
+.phpunit.result.cache
+/storage/*.key
+/storage/app/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/testing/*
+/storage/framework/views/*
+/storage/logs/*
+
+# Compiled files
+/public/build/
+/public/hot/
+
+# Docker
+docker-compose.override.yml
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store

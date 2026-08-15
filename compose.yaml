@@ -1,0 +1,158 @@
+# ─────────────────────────────────────────────────────────────
+# Production stack: app (PHP-FPM) + PostgreSQL + Nginx + worker
+# ─────────────────────────────────────────────────────────────
+
+name: gym-management
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: gym-management/app:latest
+    restart: unless-stopped
+    command: php-fpm
+    env_file:
+      - .env
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE:-gym}
+      DB_USERNAME: ${DB_USERNAME:-gym}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      CACHE_STORE: database
+      QUEUE_CONNECTION: database
+      SESSION_DRIVER: database
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    volumes:
+      - app_storage:/var/www/html/storage
+    networks:
+      - gymnet
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: gym-management/app:latest
+    command: sh -c "php artisan migrate --force && php artisan db:seed --class=RoleSeeder --force && php artisan db:seed --class=AdminUserSeeder --force && php artisan optimize"
+    env_file:
+      - .env
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE:-gym}
+      DB_USERNAME: ${DB_USERNAME:-gym}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      CACHE_STORE: database
+      QUEUE_CONNECTION: database
+      SESSION_DRIVER: database
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - app_storage:/var/www/html/storage
+    networks:
+      - gymnet
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-gym}
+      POSTGRES_USER: ${DB_USERNAME:-gym}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-gym} -d ${DB_DATABASE:-gym}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - gymnet
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      # Portfolio pattern: each project publishes a UNIQUE host port
+      # (8081, 8082, ...) via APP_PORT. The central VPS nginx proxies
+      # gym.tudominio.com -> 127.0.0.1:8081.
+      - "${APP_PORT:-8081}:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - app_storage:/var/www/html/storage:ro
+    depends_on:
+      - app
+    networks:
+      - gymnet
+
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: gym-management/app:latest
+    restart: unless-stopped
+    command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+    env_file:
+      - .env
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE:-gym}
+      DB_USERNAME: ${DB_USERNAME:-gym}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      CACHE_STORE: database
+      QUEUE_CONNECTION: database
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    volumes:
+      - app_storage:/var/www/html/storage
+    networks:
+      - gymnet
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: gym-management/app:latest
+    restart: unless-stopped
+    command: php artisan schedule:work
+    env_file:
+      - .env
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE:-gym}
+      DB_USERNAME: ${DB_USERNAME:-gym}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      CACHE_STORE: database
+      QUEUE_CONNECTION: database
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    volumes:
+      - app_storage:/var/www/html/storage
+    networks:
+      - gymnet
+
+volumes:
+  db_data:
+  app_storage:
+
+networks:
+  gymnet:
+    driver: bridge
