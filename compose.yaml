@@ -86,6 +86,7 @@ services:
       # gym.tudominio.com -> 127.0.0.1:8081.
       - "${APP_PORT:-8081}:80"
     volumes:
+      - ./:/var/www/html:ro
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
       - app_storage:/var/www/html/storage:ro
     depends_on:

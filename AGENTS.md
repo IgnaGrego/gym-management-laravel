@@ -301,7 +301,30 @@ document it instead of silently fixing it.
 
 ---
 
-# 16. Architectural Decisions
+# 16. Git Branching
+
+The repository uses a three-tier branching model (see ADR-008):
+
+```
+feature/*   →   testing   →   main
+```
+
+- **main** — production-stable. Protected: only merges from testing via Pull
+  Request, never direct commits.
+- **testing** — integration branch. Receives feature branches; used for staging.
+- **feature/*** — one branch per spec/task, created from testing, merged to
+  testing via Pull Request.
+
+Rules:
+
+- Never commit directly to main.
+- A feature is implemented on its own branch (e.g., feature/spec-005-payments).
+- The default branch on GitHub is testing.
+- Production deploys from main.
+
+---
+
+# 17. Architectural Decisions
 
 Important architectural decisions must be documented as ADRs under:
 
@@ -317,7 +340,7 @@ Examples:
 
 ---
 
-# 17. Security
+# 18. Security
 
 Never expose:
 
@@ -335,7 +358,7 @@ Never rely only on frontend restrictions.
 
 ---
 
-# 18. Completion
+# 19. Completion
 
 A feature is complete only when:
 
@@ -349,7 +372,7 @@ A feature is complete only when:
 
 ---
 
-# 19. When in Doubt
+# 20. When in Doubt
 
 Do not guess about business behavior.
 

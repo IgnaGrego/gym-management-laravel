@@ -30,6 +30,8 @@ RUN apk add --no-cache \
         freetype-dev \
         oniguruma-dev \
         postgresql-client \
+        postgresql-dev \
+        sqlite-dev \
         $PHPIZE_DEPS \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
@@ -53,6 +55,10 @@ COPY . .
 
 # Composer production deps
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+
+# Publish Filament vendor assets (admin panel CSS/JS) so the panel renders
+# (must run after composer install; without it /admin is unstyled/black)
+RUN php artisan filament:assets --no-interaction
 
 # Copy compiled frontend assets from the assets stage
 COPY --from=assets /app/public/build /var/www/html/public/build
