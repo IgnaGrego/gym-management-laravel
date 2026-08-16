@@ -70,6 +70,14 @@ it('demo:reset wipes transactional data and reseeds a clean demo state', functio
     expect($demoClient->memberships()->where('status', Membership::STATUS_ACTIVE)->exists())->toBeTrue();
 });
 
+it('seeds the demo admin with ADMIN role', function () {
+    $this->seed(DemoSeeder::class);
+
+    $user = User::where('email', 'admin@gym.com')->first();
+    expect($user)->not->toBeNull();
+    expect($user->hasRole(Role::ADMIN))->toBeTrue();
+});
+
 it('demo:reset keeps the ADMIN user and reference data intact', function () {
     $this->seed(DemoSeeder::class);
     $adminBefore = User::where('email', env('ADMIN_EMAIL', 'admin@gym.test'))->first();

@@ -32,6 +32,14 @@ class DemoSeeder extends Seeder
 
     private const DEMO_CLIENT_PASSWORD = 'Cliente123!';
 
+    /**
+     * Demo ADMIN credentials shared publicly so visitors can explore the admin
+     * panel. Kept separate from the real deploy ADMIN (env-driven) account.
+     */
+    private const DEMO_ADMIN_EMAIL = 'admin@gym.com';
+
+    private const DEMO_ADMIN_PASSWORD = 'Admin123!';
+
     public function run(): void
     {
         // Roles must exist before any role assignment.
@@ -48,6 +56,18 @@ class DemoSeeder extends Seeder
             ]
         );
         $adminUser->roles()->syncWithoutDetaching($adminRole);
+
+        // Public demo ADMIN so anyone can explore the admin panel. Distinct
+        // from the real ADMIN above. Recreated on every demo:reset.
+        $demoAdmin = User::updateOrCreate(
+            ['email' => self::DEMO_ADMIN_EMAIL],
+            [
+                'name' => 'Admin Demo',
+                'password' => self::DEMO_ADMIN_PASSWORD,
+                'is_active' => true,
+            ]
+        );
+        $demoAdmin->roles()->syncWithoutDetaching($adminRole);
 
         // A single demo plan for the memberships to reference.
         $plan = Plan::firstOrCreate(

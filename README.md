@@ -11,12 +11,13 @@ Probá la aplicación en línea: **https://gym.ignagrego.online**
 
 | Rol | Email | Contraseña | Acceso |
 | --- | --- | --- | --- |
+| Admin demo | `admin@gym.com` | `Admin123!` | `/admin` |
 | Cliente demo | `cliente@gym.com` | `Cliente123!` | `/portal` |
-| Admin demo | *(definida por el admin del deploy)* | *(definida por el admin del deploy)* | `/admin` |
 
 > La instancia es una **demo**: se resetea automáticamente cada 24 horas, así que
-> podés experimentar libremente. Los datos no son reales. El acceso al panel de
-> admin es restringido y rate-limited (máx. 120 peticiones/min por IP).
+> podés experimentar libremente (crear clientes, planes, membresías, cuotas,
+> etc.). Los datos no son reales y se descartan con cada reset. El panel de
+> admin es rate-limited (máx. 120 peticiones/min por IP).
 
 ## Características
 
