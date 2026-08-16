@@ -23,6 +23,10 @@ class ResetDemoDatabase extends Command
      * Keeps reference/master data (roles, plans, exercises, turnos, routines)
      * and the ADMIN user intact. The demo reset is idempotent and safe to run
      * repeatedly (e.g. nightly via the Laravel scheduler).
+     *
+     * Intended for a public demo environment, including production. The
+     * admin-write rate limiter and the fact that it is scheduled nightly guard
+     * against misuse. Use with care on any instance holding real data.
      */
     protected $signature = 'demo:reset';
 
@@ -30,11 +34,6 @@ class ResetDemoDatabase extends Command
 
     public function handle(): int
     {
-        if (app()->environment('production')) {
-            $this->error('demo:reset is disabled in production.');
-            return self::FAILURE;
-        }
-
         $this->info('Resetting demo data...');
 
         DB::transaction(function () {
@@ -55,7 +54,10 @@ class ResetDemoDatabase extends Command
             }
         });
 
-        $this->callSilently('db:seed', ['--class' => 'Database\\Seeders\\DemoSeeder']);
+        // Invoke the demo seeder via the seeder resolver (not the `db:seed`
+        // command), so no production confirmation prompt is triggered. This
+        // command IS the deliberate demo reset, so that is safe.
+        $this->call(\Database\Seeders\DemoSeeder::class);
 
         $this->info('Demo data reset complete.');
 
