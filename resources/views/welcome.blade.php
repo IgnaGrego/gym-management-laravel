@@ -1,15 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'El Area Gym')
+@section('title', 'Vital Gym')
 
 @section('content')
     <section class="py-12 text-center sm:py-20">
         <h1 class="text-4xl font-bold tracking-tight text-stone-900 sm:text-5xl">
-            El Area Gym
+            Vital Gym
         </h1>
 
         <p class="mx-auto mt-4 max-w-2xl text-lg text-stone-600">
-            Welcome to the gym management system.
+            Bienvenido al sistema de gestión del gimnasio.
         </p>
 
         @if (session('status'))
@@ -19,7 +19,7 @@
         @endif
 
         <p class="mt-8">
-            <a href="{{ route('login') }}" class="btn-brand">Log in</a>
+            <a href="{{ route('login') }}" class="btn-brand">Iniciar sesión</a>
         </p>
     </section>
 @endsection

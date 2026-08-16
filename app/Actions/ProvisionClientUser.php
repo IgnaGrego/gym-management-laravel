@@ -78,7 +78,7 @@ class ProvisionClientUser
 
         if ($client->user_id !== null) {
             throw ValidationException::withMessages([
-                'login_email' => 'This client already has a linked user account.',
+                'login_email' => 'Este cliente ya tiene una cuenta de usuario vinculada.',
             ]);
         }
     }

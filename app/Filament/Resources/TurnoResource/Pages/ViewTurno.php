@@ -26,7 +26,7 @@ class ViewTurno extends ViewRecord
         return [
             Actions\EditAction::make(),
             Actions\Action::make('deactivate')
-                ->label('Deactivate')
+                ->label('Desactivar')
                 ->icon('heroicon-o-arrow-down-circle')
                 ->color('warning')
                 ->requiresConfirmation()
@@ -34,7 +34,7 @@ class ViewTurno extends ViewRecord
                 ->authorize(fn (Turno $record): bool => auth()->user()->can('update', $record))
                 ->action(fn (Turno $record) => $record->deactivate()),
             Actions\Action::make('reactivate')
-                ->label('Reactivate')
+                ->label('Reactivar')
                 ->icon('heroicon-o-arrow-up-circle')
                 ->color('success')
                 ->requiresConfirmation()
@@ -42,7 +42,7 @@ class ViewTurno extends ViewRecord
                 ->authorize(fn (Turno $record): bool => auth()->user()->can('update', $record))
                 ->action(fn (Turno $record) => $record->reactivate()),
             Actions\Action::make('cancel')
-                ->label('Cancel')
+                ->label('Cancelar')
                 ->icon('heroicon-o-x-circle')
                 ->color('danger')
                 ->requiresConfirmation()

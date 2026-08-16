@@ -1,14 +1,14 @@
 @php
     $links = [
-        'portal' => ['label' => 'Overview', 'route' => 'portal'],
-        'portal.memberships' => ['label' => 'Memberships', 'route' => 'portal.memberships'],
-        'portal.payments' => ['label' => 'Payments', 'route' => 'portal.payments'],
-        'portal.attendance' => ['label' => 'Attendance', 'route' => 'portal.attendance'],
+        'portal' => ['label' => 'Resumen', 'route' => 'portal'],
+        'portal.memberships' => ['label' => 'Membresías', 'route' => 'portal.memberships'],
+        'portal.payments' => ['label' => 'Pagos', 'route' => 'portal.payments'],
+        'portal.attendance' => ['label' => 'Asistencia', 'route' => 'portal.attendance'],
         'portal.turnos' => ['label' => 'Turnos', 'route' => 'portal.turnos'],
-        'portal.bookings' => ['label' => 'Bookings', 'route' => 'portal.bookings'],
-        'portal.routine' => ['label' => 'Routine', 'route' => 'portal.routine'],
-        'portal.workouts' => ['label' => 'Workouts', 'route' => 'portal.workouts'],
-        'portal.profile' => ['label' => 'Profile', 'route' => 'portal.profile'],
+        'portal.bookings' => ['label' => 'Reservas', 'route' => 'portal.bookings'],
+        'portal.routine' => ['label' => 'Rutina', 'route' => 'portal.routine'],
+        'portal.workouts' => ['label' => 'Entrenamientos', 'route' => 'portal.workouts'],
+        'portal.profile' => ['label' => 'Perfil', 'route' => 'portal.profile'],
     ];
 @endphp
 

@@ -12,7 +12,7 @@ beforeEach(function () {
 it('renders the landing page with the shared layout and branding', function () {
     $this->get('/')
         ->assertOk()
-        ->assertSee('El Area Gym')
+        ->assertSee('Vital Gym')
         ->assertSee('<title>', false)
         ->assertSee('<header', false)
         ->assertSee('<nav', false)
@@ -23,7 +23,7 @@ it('renders the landing page with the shared layout and branding', function () {
 it('shows a visible login entry point', function () {
     $this->get('/')
         ->assertOk()
-        ->assertSee('Log in')
+        ->assertSee('Iniciar sesión')
         ->assertSee(route('login'), false);
 });
 
@@ -39,10 +39,10 @@ it('drops the inline page stylesheet from the scoped views', function () {
 });
 
 it('preserves the session status notice', function () {
-    $this->withSession(['status' => 'Your account has no assigned roles yet. Contact an administrator.'])
+    $this->withSession(['status' => 'Tu cuenta aún no tiene roles asignados. Contactá a un administrador.'])
         ->get('/')
         ->assertOk()
-        ->assertSee('Your account has no assigned roles yet. Contact an administrator.');
+        ->assertSee('Tu cuenta aún no tiene roles asignados. Contactá a un administrador.');
 });
 
 it('loads assets through the shared layout via @vite', function () {

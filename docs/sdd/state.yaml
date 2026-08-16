@@ -50,6 +50,27 @@ current:
   status: idle
 
 specifications:
+  SPEC-016:
+    name: Spanish Localization
+    status: completed
+    depends_on:
+      - SPEC-015
+    agents:
+      analyst: done
+      architect: done
+      developer: done
+      reviewer: done
+    review:
+      result: pass
+      report: docs/reviews/SPEC-016.md
+    implementation_attempts: 2
+    block:
+      reason: null
+      by: null
+    po_decisions:
+      - "PO aprueba recomendaciones OQ-01..OQ-08 (2026-08-16): traduccion FIJA a espanol sin selector bilingue (OQ-01); Filament con labels espanol explicitos + catalogo es integrado, sin paquete (OQ-02); lang/es/{validation,auth,passwords,pagination} propios sin paquete (OQ-03); locale 'es' fallback 'en' faker es_ES (OQ-04); traducir errores/flash/excepciones en sitio + actualizar tests fijados (OQ-05); traduccion solo display, valores almacenados sin cambio (OQ-06); brand 'El Area Gym' (OQ-07); strings de consola/seeder fuera de alcance (OQ-08)."
+    last_agent: analyst
+    updated_at: 2026-08-16T00:30:00Z
   SPEC-001:
     name: Authentication & Roles
     status: completed
@@ -969,6 +990,77 @@ history:
     result: success
   - timestamp: 2026-08-15T18:00:00Z
     spec: SPEC-015
+    from: review
+    to: completed
+    agent: reviewer
+    result: pass
+  - timestamp: 2026-08-16T00:00:00Z
+    spec: SPEC-016
+    from: pending
+    to: analysis
+    agent: orchestrator
+    result: success
+  - timestamp: 2026-08-16T00:30:00Z
+    spec: SPEC-016
+    from: analysis
+    to: spec_ready
+    agent: analyst
+    result: success
+    note: "OQ-01..OQ-08 documentadas; PO aprueba recomendaciones (fija a es, sin selector)"
+  - timestamp: 2026-08-16T00:30:00Z
+    spec: SPEC-016
+    from: spec_ready
+    to: architecture
+    agent: orchestrator
+    result: success
+  - timestamp: 2026-08-16T01:00:00Z
+    spec: SPEC-016
+    from: architecture
+    to: architecture_ready
+    agent: architect
+    result: success
+    note: "ADR-009 label maps display-only"
+  - timestamp: 2026-08-16T01:00:00Z
+    spec: SPEC-016
+    from: architecture_ready
+    to: implementation
+    agent: orchestrator
+    result: success
+  - timestamp: 2026-08-16T02:00:00Z
+    spec: SPEC-016
+    from: implementation
+    to: implementation_ready
+    agent: developer
+    result: success
+    note: "locale es + lang/es + Filament es + views es + label maps; suite 539 passed"
+  - timestamp: 2026-08-16T02:00:00Z
+    spec: SPEC-016
+    from: implementation_ready
+    to: review
+    agent: orchestrator
+    result: success
+  - timestamp: 2026-08-16T02:30:00Z
+    spec: SPEC-016
+    from: review
+    to: implementation
+    agent: reviewer
+    result: fail
+    note: "Scope hygiene: codigo demo-hardening mezclado (admin-write, demo:reset, DemoSeeder) - eliminar"
+  - timestamp: 2026-08-16T03:00:00Z
+    spec: SPEC-016
+    from: implementation
+    to: implementation_ready
+    agent: developer
+    result: success
+    note: "demo-hardening eliminado; changeset solo localizacion; suite 533 passed"
+  - timestamp: 2026-08-16T03:00:00Z
+    spec: SPEC-016
+    from: implementation_ready
+    to: review
+    agent: orchestrator
+    result: success
+  - timestamp: 2026-08-16T03:30:00Z
+    spec: SPEC-016
     from: review
     to: completed
     agent: reviewer

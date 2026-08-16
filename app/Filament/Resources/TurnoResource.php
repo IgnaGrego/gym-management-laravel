@@ -22,7 +22,11 @@ class TurnoResource extends Resource
 
     protected static ?string $navigationLabel = 'Turnos';
 
-    protected static ?string $navigationGroup = 'Scheduling';
+    protected static ?string $navigationGroup = 'Agenda';
+
+    protected static ?string $modelLabel = 'Turno';
+
+    protected static ?string $pluralModelLabel = 'Turnos';
 
     /**
      * Turno create/edit form (SPEC-006 FR-001, FR-004).
@@ -48,27 +52,29 @@ class TurnoResource extends Resource
                 Forms\Components\Section::make('Turno')
                     ->schema([
                         Forms\Components\DatePicker::make('date')
+                            ->label('Fecha')
                             ->required()
                             ->minDate(now()->toDateString())
                             ->rule('after_or_equal:today'),
                         Forms\Components\TimePicker::make('start_time')
-                            ->label('Start time')
+                            ->label('Hora de inicio')
                             ->seconds(false)
                             ->required()
                             ->rule('date_format:H:i'),
                         Forms\Components\TimePicker::make('end_time')
-                            ->label('End time')
+                            ->label('Hora de fin')
                             ->seconds(false)
                             ->required()
                             ->rule('date_format:H:i')
                             ->rule('after:data.start_time'),
                         Forms\Components\TextInput::make('capacity_limit')
-                            ->label('Capacity limit')
+                            ->label('Cupo máximo')
                             ->numeric()
                             ->required()
                             ->integer()
                             ->minValue(1),
                         Forms\Components\TextInput::make('label')
+                            ->label('Etiqueta')
                             ->maxLength(255),
                     ])
                     ->columns(2),
@@ -88,23 +94,26 @@ class TurnoResource extends Resource
                 Infolists\Components\Section::make('Turno')
                     ->schema([
                         Infolists\Components\TextEntry::make('date')
+                            ->label('Fecha')
                             ->date('Y-m-d'),
                         Infolists\Components\TextEntry::make('start_time')
-                            ->label('Start time')
+                            ->label('Hora de inicio')
                             ->time('H:i'),
                         Infolists\Components\TextEntry::make('end_time')
-                            ->label('End time')
+                            ->label('Hora de fin')
                             ->time('H:i'),
                         Infolists\Components\TextEntry::make('capacity_limit')
-                            ->label('Capacity limit'),
+                            ->label('Cupo máximo'),
                         Infolists\Components\TextEntry::make('occupancy')
-                            ->label('Occupancy')
+                            ->label('Ocupación')
                             ->state(fn (Turno $record): string => $record->confirmedBookingsCount().' / '.$record->capacity_limit),
                         Infolists\Components\TextEntry::make('status')
+                            ->label('Estado')
                             ->badge()
                             ->color(fn (string $state): string => static::statusColor($state))
-                            ->formatStateUsing(fn (string $state): string => ucfirst($state)),
+                            ->formatStateUsing(fn (string $state): string => Turno::statusLabels()[$state] ?? $state),
                         Infolists\Components\TextEntry::make('label')
+                            ->label('Etiqueta')
                             ->placeholder('—'),
                     ])
                     ->columns(2),
@@ -129,35 +138,37 @@ class TurnoResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('date')
+                    ->label('Fecha')
                     ->date('Y-m-d')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('start_time')
-                    ->label('Start time')
+                    ->label('Hora de inicio')
                     ->time('H:i'),
                 Tables\Columns\TextColumn::make('end_time')
-                    ->label('End time')
+                    ->label('Hora de fin')
                     ->time('H:i'),
                 Tables\Columns\TextColumn::make('capacity_limit')
-                    ->label('Capacity limit'),
+                    ->label('Cupo máximo'),
                 Tables\Columns\TextColumn::make('label')
+                    ->label('Etiqueta')
                     ->searchable()
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('status')
+                    ->label('Estado')
                     ->badge()
                     ->color(fn (string $state): string => static::statusColor($state))
-                    ->formatStateUsing(fn (string $state): string => ucfirst($state)),
+                    ->formatStateUsing(fn (string $state): string => Turno::statusLabels()[$state] ?? $state),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        Turno::STATUS_ACTIVE => 'Active',
-                        Turno::STATUS_INACTIVE => 'Inactive',
-                        Turno::STATUS_CANCELLED => 'Cancelled',
-                    ]),
+                    ->label('Estado')
+                    ->options(Turno::statusLabels()),
                 Tables\Filters\Filter::make('date')
                     ->form([
-                        Forms\Components\DatePicker::make('date_from'),
-                        Forms\Components\DatePicker::make('date_until'),
+                        Forms\Components\DatePicker::make('date_from')
+                            ->label('Desde'),
+                        Forms\Components\DatePicker::make('date_until')
+                            ->label('Hasta'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -175,7 +186,7 @@ class TurnoResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('deactivate')
-                    ->label('Deactivate')
+                    ->label('Desactivar')
                     ->icon('heroicon-o-arrow-down-circle')
                     ->color('warning')
                     ->requiresConfirmation()
@@ -183,7 +194,7 @@ class TurnoResource extends Resource
                     ->authorize(fn (Turno $record): bool => auth()->user()->can('update', $record))
                     ->action(fn (Turno $record) => $record->deactivate()),
                 Tables\Actions\Action::make('reactivate')
-                    ->label('Reactivate')
+                    ->label('Reactivar')
                     ->icon('heroicon-o-arrow-up-circle')
                     ->color('success')
                     ->requiresConfirmation()
@@ -191,7 +202,7 @@ class TurnoResource extends Resource
                     ->authorize(fn (Turno $record): bool => auth()->user()->can('update', $record))
                     ->action(fn (Turno $record) => $record->reactivate()),
                 Tables\Actions\Action::make('cancel')
-                    ->label('Cancel')
+                    ->label('Cancelar')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->requiresConfirmation()

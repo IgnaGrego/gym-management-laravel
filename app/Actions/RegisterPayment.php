@@ -105,13 +105,13 @@ class RegisterPayment
     {
         if ($cuota === null) {
             throw ValidationException::withMessages([
-                'cuota_id' => 'The selected cuota does not exist.',
+                'cuota_id' => 'La cuota seleccionada no existe.',
             ]);
         }
 
         if ($cuota->status !== Cuota::STATUS_PENDING) {
             throw ValidationException::withMessages([
-                'cuota_id' => 'Only a pending cuota can be paid.',
+                'cuota_id' => 'Solo una cuota pendiente puede pagarse.',
             ]);
         }
 
@@ -133,7 +133,7 @@ class RegisterPayment
         // two-decimal strings to avoid floating-point drift (ADR-003).
         if (number_format((float) $amount, 2, '.', '') !== number_format((float) $cuota->amount, 2, '.', '')) {
             throw ValidationException::withMessages([
-                'amount' => 'The payment amount must equal the cuota amount (full payment only).',
+                'amount' => 'El monto del pago debe ser igual al monto de la cuota (solo pago completo).',
             ]);
         }
     }

@@ -23,7 +23,7 @@ class ViewBooking extends ViewRecord
     {
         return [
             Actions\Action::make('cancel')
-                ->label('Cancel')
+                ->label('Cancelar')
                 ->icon('heroicon-o-x-circle')
                 ->color('danger')
                 ->requiresConfirmation()

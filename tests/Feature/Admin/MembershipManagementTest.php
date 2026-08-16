@@ -285,7 +285,7 @@ it('lets ADMIN view the full membership detail including client, plan, period an
         ->assertSee('Detail Plan')
         ->assertSee('2026-08-15')
         ->assertSee('2026-09-13')
-        ->assertSee('Active');
+        ->assertSee('Activo');
 });
 
 it('lets ADMIN cancel a pending or active membership via the list action', function () {

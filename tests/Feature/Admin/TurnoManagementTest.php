@@ -270,7 +270,7 @@ it('lets ADMIN view the full turno detail including status', function () {
         ->assertSee('08:00')
         ->assertSee('10:00')
         ->assertSee('Horario pico')
-        ->assertSee('Active');
+        ->assertSee('Activo');
 });
 
 it('lets ADMIN edit an active turno and persist the changes', function () {

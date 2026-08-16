@@ -67,7 +67,7 @@ class RenewMembership
     {
         if (! in_array($membership->status, [Membership::STATUS_ACTIVE, Membership::STATUS_EXPIRED], true)) {
             throw ValidationException::withMessages([
-                'membership' => 'Only active or expired memberships can be renewed.',
+                'membership' => 'Solo las membresías activas o vencidas pueden renovarse.',
             ]);
         }
 
@@ -81,7 +81,7 @@ class RenewMembership
 
         if (! $membership->plan->is_active) {
             throw ValidationException::withMessages([
-                'plan' => 'The membership cannot be renewed against an inactive plan.',
+                'plan' => 'La membresía no puede renovarse contra un plan inactivo.',
             ]);
         }
     }

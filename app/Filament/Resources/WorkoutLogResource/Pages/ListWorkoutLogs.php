@@ -28,13 +28,13 @@ class ListWorkoutLogs extends ListRecords
         return [
             Actions\CreateAction::make(),
             Actions\Action::make('viewProgress')
-                ->label('View client progress')
+                ->label('Ver progreso del cliente')
                 ->icon('heroicon-o-chart-bar')
                 ->color('primary')
                 ->authorize(fn (): bool => auth()->user()->can('viewAny', WorkoutLog::class))
                 ->form([
                     Forms\Components\Select::make('client_id')
-                        ->label('Client')
+                        ->label('Cliente')
                         ->options(fn (): array => Client::query()->pluck('full_name', 'id')->all())
                         ->searchable()
                         ->required(),

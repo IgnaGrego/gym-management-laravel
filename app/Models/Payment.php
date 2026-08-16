@@ -31,6 +31,37 @@ class Payment extends Model
     public const METHOD_TRANSFER = 'transfer';
 
     /**
+     * Payment-status display labels (presentation only; SPEC-016 FR-006,
+     * ADR-009). Keyed by the stored identifier; the persisted value is never
+     * changed.
+     *
+     * @return array<string, string>
+     */
+    public static function statusLabels(): array
+    {
+        return [
+            static::STATUS_PENDING => 'Pendiente',
+            static::STATUS_CONFIRMED => 'Confirmado',
+            static::STATUS_FAILED => 'Fallido',
+        ];
+    }
+
+    /**
+     * Payment-method display labels (presentation only; SPEC-016 FR-006,
+     * ADR-009). Keyed by the stored identifier; the persisted value is never
+     * changed.
+     *
+     * @return array<string, string>
+     */
+    public static function methodLabels(): array
+    {
+        return [
+            static::METHOD_CASH => 'Efectivo',
+            static::METHOD_TRANSFER => 'Transferencia bancaria',
+        ];
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * `status` is intentionally NOT fillable: a manually registered payment

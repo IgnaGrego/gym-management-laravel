@@ -1,15 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Payments - El Area Gym')
+@section('title', 'Pagos - Vital Gym')
 
 @section('content')
     <section>
-        <h1 class="text-3xl font-bold tracking-tight text-stone-900">Payments &amp; cuotas</h1>
+        <h1 class="text-3xl font-bold tracking-tight text-stone-900">Pagos y cuotas</h1>
 
         @include('partials.portal-nav')
 
         @if ($memberships->isEmpty())
-            <p class="mt-6 text-stone-600">No memberships found.</p>
+            <p class="mt-6 text-stone-600">No se encontraron membresías.</p>
         @else
             <ul class="mt-6 space-y-4">
                 @foreach ($memberships as $membership)
@@ -19,21 +19,21 @@
                         <p class="mt-1 text-sm text-stone-600">
                             Cuota:
                             <span class="font-medium text-stone-800">{{ $membership->cuota?->amount ?? '—' }}</span>
-                            · status {{ $membership->cuota?->status ?? '—' }}
+                            · estado {{ $membership->cuota ? (App\Models\Cuota::statusLabels()[$membership->cuota->status] ?? $membership->cuota->status) : '—' }}
                         </p>
 
                         @if ($membership->cuota && $membership->cuota->payments->isNotEmpty())
                             <ul class="mt-2 space-y-1 pl-4">
                                 @foreach ($membership->cuota->payments as $payment)
                                     <li class="text-sm text-stone-600">
-                                        {{ $payment->amount }} · {{ $payment->method }}
+                                        {{ $payment->amount }} · {{ App\Models\Payment::methodLabels()[$payment->method] ?? $payment->method }}
                                         · {{ $payment->payment_date->format('Y-m-d') }}
-                                        · {{ $payment->status }}
+                                        · {{ App\Models\Payment::statusLabels()[$payment->status] ?? $payment->status }}
                                     </li>
                                 @endforeach
                             </ul>
                         @else
-                            <p class="mt-2 text-sm text-stone-500">No payments recorded.</p>
+                            <p class="mt-2 text-sm text-stone-500">No hay pagos registrados.</p>
                         @endif
                     </li>
                 @endforeach

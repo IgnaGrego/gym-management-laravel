@@ -1,10 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Bookings - El Area Gym')
+@section('title', 'Reservas - Vital Gym')
 
 @section('content')
     <section>
-        <h1 class="text-3xl font-bold tracking-tight text-stone-900">Bookings</h1>
+        <h1 class="text-3xl font-bold tracking-tight text-stone-900">Reservas</h1>
 
         @include('partials.portal-nav')
 
@@ -21,7 +21,7 @@
         @endif
 
         @if ($bookings->isEmpty())
-            <p class="mt-6 text-stone-600">No bookings found.</p>
+            <p class="mt-6 text-stone-600">No se encontraron reservas.</p>
         @else
             <ul class="mt-6 space-y-4">
                 @foreach ($bookings as $booking)
@@ -31,15 +31,15 @@
                             {{ $booking->turno->start_time }}–{{ $booking->turno->end_time }}
                         </p>
                         <p class="mt-1 text-sm text-stone-600">
-                            Status: {{ $booking->status }}
-                            · Booked at {{ $booking->booked_at->format('Y-m-d H:i') }}
+                            Estado: {{ App\Models\Booking::statusLabels()[$booking->status] ?? $booking->status }}
+                            · Reservado el {{ $booking->booked_at->format('Y-m-d H:i') }}
                         </p>
 
                         @if ($booking->status === App\Models\Booking::STATUS_CONFIRMED)
                             <form method="POST" action="{{ route('portal.bookings.cancel', $booking) }}" class="mt-3">
                                 @csrf
                                 <button type="submit" class="rounded-md bg-stone-900 px-3 py-2 text-sm font-semibold text-white hover:bg-stone-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2">
-                                    Cancel booking
+                                    Cancelar reserva
                                 </button>
                             </form>
                         @endif

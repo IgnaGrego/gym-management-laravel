@@ -1,15 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Attendance - El Area Gym')
+@section('title', 'Asistencia - Vital Gym')
 
 @section('content')
     <section>
-        <h1 class="text-3xl font-bold tracking-tight text-stone-900">Attendance</h1>
+        <h1 class="text-3xl font-bold tracking-tight text-stone-900">Asistencia</h1>
 
         @include('partials.portal-nav')
 
         @if ($attendances->isEmpty())
-            <p class="mt-6 text-stone-600">No attendance records found.</p>
+            <p class="mt-6 text-stone-600">No se encontraron registros de asistencia.</p>
         @else
             <ul class="mt-6 space-y-4">
                 @foreach ($attendances as $attendance)

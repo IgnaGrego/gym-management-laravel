@@ -53,6 +53,10 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                // Demo hardening (SPEC-016): rate-limit panel requests per IP
+                // (applies to Livewire write requests too). Blocks scripted
+                // bulk-abuse of a public demo admin panel.
+                'throttle:admin-write',
             ])
             ->authMiddleware([
                 Authenticate::class,

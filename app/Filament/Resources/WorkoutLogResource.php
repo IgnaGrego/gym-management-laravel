@@ -23,9 +23,13 @@ class WorkoutLogResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
-    protected static ?string $navigationLabel = 'Workout Logs';
+    protected static ?string $navigationLabel = 'Registros de entrenamiento';
 
-    protected static ?string $navigationGroup = 'Training';
+    protected static ?string $navigationGroup = 'Entrenamiento';
+
+    protected static ?string $modelLabel = 'Registro de entrenamiento';
+
+    protected static ?string $pluralModelLabel = 'Registros de entrenamiento';
 
     /**
      * Workout-log create form (SPEC-011 FR-001, FR-002, FR-005; BR-001,
@@ -67,10 +71,10 @@ class WorkoutLogResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Workout log')
+                Forms\Components\Section::make('Registro de entrenamiento')
                     ->schema([
                         Forms\Components\Select::make('client_id')
-                            ->label('Client')
+                            ->label('Cliente')
                             ->relationship('client', 'full_name')
                             ->searchable(['full_name', 'dni'])
                             ->preload()
@@ -78,18 +82,15 @@ class WorkoutLogResource extends Resource
                             ->reactive()
                             ->exists('clients', 'id'),
                         Forms\Components\DateTimePicker::make('performed_at')
-                            ->label('Performed at')
+                            ->label('Realizado el')
                             ->seconds(false)
                             ->displayFormat('Y-m-d H:i')
                             ->required()
                             ->default(now())
                             ->beforeOrEqual('now'),
                         Forms\Components\Select::make('reference_type')
-                            ->label('Reference type')
-                            ->options([
-                                'routine' => 'From assigned routine',
-                                'free' => 'Free exercise',
-                            ])
+                            ->label('Tipo de referencia')
+                            ->options(WorkoutLog::referenceTypeLabels())
                             ->default('routine')
                             ->dehydrated(false)
                             ->reactive()
@@ -98,7 +99,7 @@ class WorkoutLogResource extends Resource
                                 $set('exercise_id', null);
                             }),
                         Forms\Components\Select::make('routine_exercise_id')
-                            ->label('Prescribed set')
+                            ->label('Serie prescrita')
                             ->options(fn (Get $get): array => static::routineExerciseOptions($get('client_id')))
                             ->helperText(fn (Get $get): ?string => static::routineExerciseHint($get('client_id')))
                             ->searchable()
@@ -118,7 +119,7 @@ class WorkoutLogResource extends Resource
                                 $set('actual_reps', $routineExercise->target_reps);
                             }),
                         Forms\Components\Select::make('exercise_id')
-                            ->label('Exercise')
+                            ->label('Ejercicio')
                             ->options(fn (): array => Exercise::active()->pluck('name', 'id')->all())
                             ->searchable()
                             ->nullable()
@@ -127,15 +128,16 @@ class WorkoutLogResource extends Resource
                             ->rules(WorkoutLog::referenceRules()['exercise_id'])
                             ->rule(static fn (): array => WorkoutLog::activeExerciseRule()),
                         Forms\Components\TextInput::make('actual_weight')
-                            ->label('Actual weight (kg)')
+                            ->label('Peso real (kg)')
                             ->numeric()
                             ->minValue(0),
                         Forms\Components\TextInput::make('actual_reps')
-                            ->label('Actual reps')
+                            ->label('Repeticiones reales')
                             ->required()
                             ->integer()
                             ->minValue(1),
-                        Forms\Components\Textarea::make('notes'),
+                        Forms\Components\Textarea::make('notes')
+                            ->label('Notas'),
                     ])
                     ->columns(2),
             ]);
@@ -155,35 +157,37 @@ class WorkoutLogResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('Workout log')
+                Infolists\Components\Section::make('Registro de entrenamiento')
                     ->schema([
                         Infolists\Components\TextEntry::make('client.full_name')
-                            ->label('Client'),
+                            ->label('Cliente'),
                         Infolists\Components\TextEntry::make('client.dni')
                             ->label('DNI'),
                         Infolists\Components\TextEntry::make('performed_at')
+                            ->label('Realizado el')
                             ->dateTime('Y-m-d H:i'),
                         Infolists\Components\TextEntry::make('exercise')
-                            ->label('Exercise')
+                            ->label('Ejercicio')
                             ->state(fn (WorkoutLog $record): ?string => $record->exerciseName())
                             ->placeholder('—'),
                         Infolists\Components\TextEntry::make('routineExercise.target_weight')
-                            ->label('Target weight (kg)')
+                            ->label('Peso objetivo (kg)')
                             ->placeholder('—'),
                         Infolists\Components\TextEntry::make('routineExercise.target_reps')
-                            ->label('Target reps')
+                            ->label('Repeticiones objetivo')
                             ->placeholder('—'),
                         Infolists\Components\TextEntry::make('actual_weight')
-                            ->label('Actual weight (kg)')
+                            ->label('Peso real (kg)')
                             ->placeholder('—'),
                         Infolists\Components\TextEntry::make('actual_reps')
-                            ->label('Actual reps'),
+                            ->label('Repeticiones reales'),
                         Infolists\Components\TextEntry::make('notes')
+                            ->label('Notas')
                             ->placeholder('—'),
                         Infolists\Components\TextEntry::make('recordedBy.name')
-                            ->label('Recorded by'),
+                            ->label('Registrado por'),
                         Infolists\Components\TextEntry::make('created_at')
-                            ->label('Logged at')
+                            ->label('Registrado el')
                             ->dateTime('Y-m-d H:i'),
                     ])
                     ->columns(2),
@@ -208,35 +212,37 @@ class WorkoutLogResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('client.full_name')
-                    ->label('Client')
+                    ->label('Cliente')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('client.dni')
                     ->label('DNI')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('performed_at')
+                    ->label('Realizado el')
                     ->dateTime('Y-m-d H:i')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('exercise_name')
-                    ->label('Exercise')
+                    ->label('Ejercicio')
                     ->state(fn (WorkoutLog $record): ?string => $record->exerciseName())
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('routineExercise.target_weight')
-                    ->label('Target weight (kg)')
+                    ->label('Peso objetivo (kg)')
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('routineExercise.target_reps')
-                    ->label('Target reps')
+                    ->label('Repeticiones objetivo')
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('actual_weight')
-                    ->label('Actual weight (kg)')
+                    ->label('Peso real (kg)')
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('actual_reps')
-                    ->label('Actual reps'),
+                    ->label('Repeticiones reales'),
                 Tables\Columns\TextColumn::make('recordedBy.name')
-                    ->label('Recorded by'),
+                    ->label('Registrado por'),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Logged at')
+                    ->label('Registrado el')
                     ->dateTime('Y-m-d H:i'),
                 Tables\Columns\TextColumn::make('notes')
+                    ->label('Notas')
                     ->placeholder('—')
                     ->limit(50)
                     ->toggleable(),
@@ -244,14 +250,16 @@ class WorkoutLogResource extends Resource
             ->defaultSort('performed_at')
             ->filters([
                 Tables\Filters\SelectFilter::make('client_id')
-                    ->label('Client')
+                    ->label('Cliente')
                     ->relationship('client', 'full_name')
                     ->searchable(['full_name', 'dni'])
                     ->preload(),
                 Tables\Filters\Filter::make('performed_at')
                     ->form([
-                        Forms\Components\DatePicker::make('performed_from'),
-                        Forms\Components\DatePicker::make('performed_until'),
+                        Forms\Components\DatePicker::make('performed_from')
+                            ->label('Desde'),
+                        Forms\Components\DatePicker::make('performed_until')
+                            ->label('Hasta'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -265,14 +273,11 @@ class WorkoutLogResource extends Resource
                             );
                     }),
                 Tables\Filters\SelectFilter::make('recorded_by')
-                    ->label('Recorded by')
+                    ->label('Registrado por')
                     ->relationship('recordedBy', 'name'),
                 Tables\Filters\SelectFilter::make('reference_type')
-                    ->label('Reference type')
-                    ->options([
-                        'routine' => 'From assigned routine',
-                        'free' => 'Free exercise',
-                    ])
+                    ->label('Tipo de referencia')
+                    ->options(WorkoutLog::referenceTypeLabels())
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['value'] ?? null,
@@ -346,10 +351,10 @@ class WorkoutLogResource extends Resource
     protected static function routineExerciseLabel(RoutineExercise $row): string
     {
         return trim(sprintf(
-            'Day %d · %s — %s × %d (Set %d)',
+            'Día %d · %s — %s × %d (Serie %d)',
             $row->routineDay->day_number,
             $row->exercise?->name ?? '—',
-            $row->target_weight === null ? 'Bodyweight' : $row->target_weight.' kg',
+            $row->target_weight === null ? 'Peso corporal' : $row->target_weight.' kg',
             $row->target_reps,
             $row->set_number,
         ));
@@ -371,6 +376,6 @@ class WorkoutLogResource extends Resource
             return null;
         }
 
-        return 'This client has no assigned routine — use the free exercise reference.';
+        return 'Este cliente no tiene rutina asignada — usa la referencia de ejercicio libre.';
     }
 }

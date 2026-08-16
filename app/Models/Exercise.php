@@ -131,18 +131,18 @@ class Exercise extends Model
     public static function muscleGroupLabels(): array
     {
         return [
-            static::MUSCLE_GROUP_CHEST => 'Chest',
-            static::MUSCLE_GROUP_BACK => 'Back',
-            static::MUSCLE_GROUP_SHOULDERS => 'Shoulders',
-            static::MUSCLE_GROUP_BICEPS => 'Biceps',
-            static::MUSCLE_GROUP_TRICEPS => 'Triceps',
-            static::MUSCLE_GROUP_FOREARMS => 'Forearms',
-            static::MUSCLE_GROUP_ABS => 'Abs',
-            static::MUSCLE_GROUP_QUADRICEPS => 'Quadriceps',
-            static::MUSCLE_GROUP_HAMSTRINGS => 'Hamstrings',
-            static::MUSCLE_GROUP_GLUTES => 'Glutes',
-            static::MUSCLE_GROUP_CALVES => 'Calves',
-            static::MUSCLE_GROUP_FULL_BODY => 'Full body',
+            static::MUSCLE_GROUP_CHEST => 'Pecho',
+            static::MUSCLE_GROUP_BACK => 'Espalda',
+            static::MUSCLE_GROUP_SHOULDERS => 'Hombros',
+            static::MUSCLE_GROUP_BICEPS => 'Bíceps',
+            static::MUSCLE_GROUP_TRICEPS => 'Tríceps',
+            static::MUSCLE_GROUP_FOREARMS => 'Antebrazos',
+            static::MUSCLE_GROUP_ABS => 'Abdominales',
+            static::MUSCLE_GROUP_QUADRICEPS => 'Cuádriceps',
+            static::MUSCLE_GROUP_HAMSTRINGS => 'Isquiotibiales',
+            static::MUSCLE_GROUP_GLUTES => 'Glúteos',
+            static::MUSCLE_GROUP_CALVES => 'Gemelos',
+            static::MUSCLE_GROUP_FULL_BODY => 'Cuerpo completo',
         ];
     }
 
@@ -168,9 +168,9 @@ class Exercise extends Model
     public static function difficultyLabels(): array
     {
         return [
-            static::DIFFICULTY_BEGINNER => 'Beginner',
-            static::DIFFICULTY_INTERMEDIATE => 'Intermediate',
-            static::DIFFICULTY_ADVANCED => 'Advanced',
+            static::DIFFICULTY_BEGINNER => 'Principiante',
+            static::DIFFICULTY_INTERMEDIATE => 'Intermedio',
+            static::DIFFICULTY_ADVANCED => 'Avanzado',
         ];
     }
 

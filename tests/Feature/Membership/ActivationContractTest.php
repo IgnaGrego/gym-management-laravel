@@ -35,7 +35,7 @@ it('rejects activation from any non-pending state', function () {
         ]);
 
         expect(fn () => $membership->activate())
-            ->toThrow(DomainException::class, 'Only a pending membership can be activated.');
+            ->toThrow(DomainException::class, 'Solo una membresía pendiente puede activarse.');
 
         expect($membership->fresh()->status)->toBe($status);
     }
