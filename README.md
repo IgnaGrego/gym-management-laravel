@@ -1,17 +1,38 @@
-# Sistema de gimnasio
+# El Area Gym
 
-Gym management application built with Laravel.
+Sistema de gestión de gimnasios construido con Laravel, PostgreSQL y Filament.
 
-Manages clients, trainers, plans, memberships, payments, scheduling, bookings, attendance, exercises and routines.
+Gestiona clientes, planes, membresías, pagos, turnos, reservas, asistencia,
+ejercicios y rutinas, con un panel de administración y un portal para clientes.
+
+## Live Demo
+
+Probá la aplicación en línea: **https://gym.ignagrego.online**
+
+| Rol | Email | Contraseña | Acceso |
+| --- | --- | --- | --- |
+| Cliente demo | `cliente@gym.com` | `Cliente123!` | `/portal` |
+| Admin demo | *(definida por el admin del deploy)* | *(definida por el admin del deploy)* | `/admin` |
+
+> La instancia es una **demo**: se resetea automáticamente cada 24 horas, así que
+> podés experimentar libremente. Los datos no son reales. El acceso al panel de
+> admin es restringido y rate-limited (máx. 120 peticiones/min por IP).
+
+## Características
+
+- **Panel de administración** (Filament): gestión de clientes, planes, membresías, pagos, turnos, reservas, asistencia, ejercicios y rutinas
+- **Portal de clientes**: ver membresías, pagos, asistencia, reservar turnos, consultar rutina y registrar entrenamientos
+- **Roles**: ADMIN, TRAINER, CLIENT con políticas de autorización server-side
+- **Registro y aprobación** de clientes
+- **Todo en español**
 
 ## Technology Stack
 
 - Laravel (PHP)
 - PostgreSQL
-- Redis (queues and caching when required)
-- Docker
-- Filament (administration panel)
-- Blade, Tailwind CSS and Alpine.js (web interfaces)
+- Docker (imágenes multi-stage, producción con Nginx + PHP-FPM)
+- Filament (panel de administración)
+- Blade, Tailwind CSS y Alpine.js (interfaces web)
 - Pest / PHPUnit (testing)
 
 ## Getting Started
@@ -75,6 +96,10 @@ Manages clients, trainers, plans, memberships, payments, scheduling, bookings, a
 ```bash
 php artisan test
 ```
+
+La suite incluye tests de features y de política de autorización (Pest), con
+más de 500 casos que cubren caminos felices, validación, reglas de negocio,
+autorización y casos de error.
 
 ## Documentation
 
