@@ -13,7 +13,7 @@ beforeEach(function () {
 it('renders the login form preserving the SPEC-001 contract', function () {
     $this->get('/login')
         ->assertOk()
-        ->assertSee('Log in')
+        ->assertSee('Iniciar sesión')
         ->assertSee('El Area Gym')
         ->assertSee('method="POST"', false)
         ->assertSee(route('login'), false)
@@ -35,7 +35,7 @@ it('renders the generic validation error perceivably after an invalid login', fu
             'password' => 'wrong-password',
         ])
         ->assertOk()
-        ->assertSee('These credentials do not match our records.');
+        ->assertSee('Estas credenciales no coinciden con nuestros registros.');
 
     $this->assertGuest();
 });

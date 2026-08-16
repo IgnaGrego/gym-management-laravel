@@ -53,7 +53,7 @@ class CreateBooking
             // count; a full turno is rejected inside the lock.
             if (Booking::confirmedCountForTurno($turnoId) >= $turno->capacity_limit) {
                 throw ValidationException::withMessages([
-                    'turno_id' => 'This turno is full.',
+                    'turno_id' => 'Este turno está lleno.',
                 ]);
             }
 
@@ -65,7 +65,7 @@ class CreateBooking
                 ->confirmed()
                 ->exists()) {
                 throw ValidationException::withMessages([
-                    'turno_id' => 'This client already has a confirmed booking for this turno.',
+                    'turno_id' => 'Este cliente ya tiene una reserva confirmada para este turno.',
                 ]);
             }
 
@@ -119,13 +119,13 @@ class CreateBooking
     {
         if ($client === null) {
             throw ValidationException::withMessages([
-                'client_id' => 'The selected client does not exist.',
+                'client_id' => 'El cliente seleccionado no existe.',
             ]);
         }
 
         if ($turno === null) {
             throw ValidationException::withMessages([
-                'turno_id' => 'The selected turno does not exist.',
+                'turno_id' => 'El turno seleccionado no existe.',
             ]);
         }
 
@@ -140,7 +140,7 @@ class CreateBooking
         // Turno must be active (BR-006, ERR-003).
         if ($turno->status !== Turno::STATUS_ACTIVE) {
             throw ValidationException::withMessages([
-                'turno_id' => 'The turno is not bookable.',
+                'turno_id' => 'El turno no se puede reservar.',
             ]);
         }
 
@@ -149,7 +149,7 @@ class CreateBooking
         // Turno date must be today or later (BR-007, ERR-004).
         if ($turno->date->lt($today)) {
             throw ValidationException::withMessages([
-                'turno_id' => 'The turno date is in the past.',
+                'turno_id' => 'La fecha del turno ya pasó.',
             ]);
         }
 
@@ -157,7 +157,7 @@ class CreateBooking
         // ERR-005).
         if ($turno->date->gt($today->copy()->addDays(7))) {
             throw ValidationException::withMessages([
-                'turno_id' => 'The turno is beyond the booking lead-time window.',
+                'turno_id' => 'El turno está fuera de la ventana de anticipación de reserva.',
             ]);
         }
 
@@ -167,7 +167,7 @@ class CreateBooking
 
             if ($start->lte(now())) {
                 throw ValidationException::withMessages([
-                    'turno_id' => 'The turno has already started.',
+                    'turno_id' => 'El turno ya comenzó.',
                 ]);
             }
         }
@@ -179,10 +179,10 @@ class CreateBooking
     protected function denialMessage(?string $reason): string
     {
         return match ($reason) {
-            Client::ACCESS_DENIED_NO_MEMBERSHIP => 'This client has no membership and cannot be booked.',
-            Client::ACCESS_DENIED_MEMBERSHIP_EXPIRED => 'This client\'s membership has expired and cannot be booked.',
-            Client::ACCESS_DENIED_NO_ACTIVE_MEMBERSHIP => 'This client has no active membership and cannot be booked.',
-            default => 'This client cannot be booked.',
+            Client::ACCESS_DENIED_NO_MEMBERSHIP => 'Este cliente no tiene membresía y no puede reservarse.',
+            Client::ACCESS_DENIED_MEMBERSHIP_EXPIRED => 'La membresía de este cliente venció y no puede reservarse.',
+            Client::ACCESS_DENIED_NO_ACTIVE_MEMBERSHIP => 'Este cliente no tiene membresía activa y no puede reservarse.',
+            default => 'Este cliente no puede reservarse.',
         };
     }
 }

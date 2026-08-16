@@ -21,19 +21,19 @@ class ViewClient extends ViewRecord
             // client already has a linked account (ERR-004 UX); the rule is
             // still enforced server-side inside the Action (BR-003).
             Actions\Action::make('provision')
-                ->label('Provision user account')
+                ->label('Crear cuenta de usuario')
                 ->icon('heroicon-o-user-plus')
-                ->modalHeading('Provision user account')
-                ->modalSubmitActionLabel('Provision')
+                ->modalHeading('Crear cuenta de usuario')
+                ->modalSubmitActionLabel('Crear')
                 ->visible(fn (Client $record): bool => $record->user_id === null)
                 ->form([
                     Forms\Components\TextInput::make('login_email')
-                        ->label('Login email')
+                        ->label('Email de acceso')
                         ->email()
                         ->required()
                         ->maxLength(255),
                     Forms\Components\TextInput::make('password')
-                        ->label('Password')
+                        ->label('Contraseña')
                         ->password()
                         ->required()
                         ->minLength(8)

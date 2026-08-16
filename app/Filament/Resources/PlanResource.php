@@ -18,9 +18,13 @@ class PlanResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-tag';
 
-    protected static ?string $navigationLabel = 'Plans';
+    protected static ?string $navigationLabel = 'Planes';
 
-    protected static ?string $navigationGroup = 'Commercial';
+    protected static ?string $navigationGroup = 'Comercial';
+
+    protected static ?string $modelLabel = 'Plan';
+
+    protected static ?string $pluralModelLabel = 'Planes';
 
     /**
      * Plan create/edit form (SPEC-003 FR-001, FR-004).
@@ -39,21 +43,26 @@ class PlanResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Offer')
+                Forms\Components\Section::make('Oferta')
                     ->schema([
                         Forms\Components\TextInput::make('name')
+                            ->label('Nombre')
                             ->required()
                             ->maxLength(255)
                             ->unique(ignoreRecord: true),
-                        Forms\Components\Textarea::make('description'),
+                        Forms\Components\Textarea::make('description')
+                            ->label('Descripción'),
                         Forms\Components\TextInput::make('price')
+                            ->label('Precio')
                             ->numeric()
                             ->required()
                             ->minValue(0.01),
                         Forms\Components\TextInput::make('enrollment_fee')
+                            ->label('Matrícula')
                             ->numeric()
                             ->minValue(0),
                         Forms\Components\Toggle::make('is_active')
+                            ->label('Activo')
                             ->default(true),
                     ])
                     ->columns(2),
@@ -70,21 +79,25 @@ class PlanResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('Offer')
+                Infolists\Components\Section::make('Oferta')
                     ->schema([
-                        Infolists\Components\TextEntry::make('name'),
+                        Infolists\Components\TextEntry::make('name')
+                            ->label('Nombre'),
                         Infolists\Components\TextEntry::make('description')
+                            ->label('Descripción')
                             ->placeholder('—'),
                         Infolists\Components\TextEntry::make('price')
+                            ->label('Precio')
                             ->numeric(decimalPlaces: 2),
                         Infolists\Components\TextEntry::make('enrollment_fee')
+                            ->label('Matrícula')
                             ->numeric(decimalPlaces: 2)
                             ->placeholder('—'),
                         Infolists\Components\TextEntry::make('is_active')
-                            ->label('Status')
+                            ->label('Estado')
                             ->formatStateUsing(fn (?bool $state): string => match ($state) {
-                                true => 'Active',
-                                false => 'Inactive',
+                                true => 'Activo',
+                                false => 'Inactivo',
                                 null => '—',
                             }),
                     ])
@@ -107,24 +120,29 @@ class PlanResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nombre')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('description')
+                    ->label('Descripción')
                     ->searchable()
                     ->limit(50)
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('price')
+                    ->label('Precio')
                     ->numeric(decimalPlaces: 2),
                 Tables\Columns\TextColumn::make('enrollment_fee')
+                    ->label('Matrícula')
                     ->numeric(decimalPlaces: 2)
                     ->placeholder('—'),
                 Tables\Columns\IconColumn::make('is_active')
+                    ->label('Activo')
                     ->boolean(),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('deactivate')
-                    ->label('Deactivate')
+                    ->label('Desactivar')
                     ->icon('heroicon-o-arrow-down-circle')
                     ->color('danger')
                     ->requiresConfirmation()
@@ -132,7 +150,7 @@ class PlanResource extends Resource
                     ->authorize(fn (Plan $record): bool => auth()->user()->can('update', $record))
                     ->action(fn (Plan $record) => $record->update(['is_active' => false])),
                 Tables\Actions\Action::make('activate')
-                    ->label('Activate')
+                    ->label('Activar')
                     ->icon('heroicon-o-arrow-up-circle')
                     ->color('success')
                     ->requiresConfirmation()

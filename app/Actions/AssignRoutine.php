@@ -81,7 +81,7 @@ class AssignRoutine
     {
         if ($routine->status !== Routine::STATUS_ACTIVE) {
             throw ValidationException::withMessages([
-                'routine' => 'Only an active routine version can be assigned to clients.',
+                'routine' => 'Solo una versión activa de rutina puede asignarse a clientes.',
             ]);
         }
 
@@ -89,7 +89,7 @@ class AssignRoutine
 
         if (count($clientIds) > 0 && count($clientIds) !== Client::query()->whereKey($clientIds)->count()) {
             throw ValidationException::withMessages([
-                'clients' => 'One or more selected clients do not exist.',
+                'clients' => 'Uno o más clientes seleccionados no existen.',
             ]);
         }
     }

@@ -434,11 +434,11 @@ it('shows the version history with number, status and creator, and blocks editin
 
     Livewire::actingAs($admin)
         ->test(ViewRoutine::class, ['record' => $v3->getRouteKey()])
-        ->assertSee('Version history')
+        ->assertSee('Historial de versiones')
         ->assertSee('v1')
         ->assertSee('v2')
         ->assertSee('v3')
-        ->assertSee('Archived');
+        ->assertSee('Archivado');
 
     // Archived versions are fully readable (AF-004) but cannot be edited:
     // canEdit blocks both the row/header Edit action and direct URL access.

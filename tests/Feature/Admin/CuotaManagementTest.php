@@ -163,7 +163,7 @@ it('shows the cuota status in the list and detail view', function () {
         ->test(ViewCuota::class, ['record' => $cuota->getRouteKey()])
         ->assertSee('Cuota Client')
         ->assertSee('Cuota Plan')
-        ->assertSee('Pending');
+        ->assertSee('Pendiente');
 });
 
 it('lists a cuota payment history in the relation manager', function () {

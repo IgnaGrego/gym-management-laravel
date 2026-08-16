@@ -30,6 +30,22 @@ class Routine extends Model
     public const STATUS_ARCHIVED = 'archived';
 
     /**
+     * Routine-status display labels (presentation only; SPEC-016 FR-006,
+     * ADR-009). Keyed by the stored identifier; the persisted value is never
+     * changed.
+     *
+     * @return array<string, string>
+     */
+    public static function statusLabels(): array
+    {
+        return [
+            static::STATUS_DRAFT => 'Borrador',
+            static::STATUS_ACTIVE => 'Activo',
+            static::STATUS_ARCHIVED => 'Archivado',
+        ];
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -159,15 +175,15 @@ class Routine extends Model
     public function activate(): void
     {
         if ($this->status !== static::STATUS_DRAFT) {
-            throw new DomainException('Only a draft routine can be activated.');
+            throw new DomainException('Solo una rutina en borrador puede activarse.');
         }
 
         if ($this->days()->count() === 0) {
-            throw new DomainException('A routine must have at least one day to be activated.');
+            throw new DomainException('Una rutina debe tener al menos un día para activarse.');
         }
 
         if ($this->days()->doesntHave('exercises')->exists()) {
-            throw new DomainException('Every routine day must have at least one set to be activated.');
+            throw new DomainException('Cada día de la rutina debe tener al menos una serie para activarse.');
         }
 
         $this->status = static::STATUS_ACTIVE;

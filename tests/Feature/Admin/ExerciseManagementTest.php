@@ -336,12 +336,12 @@ it('lets ADMIN view the full exercise detail including status and attributes', f
     Livewire::actingAs($admin)
         ->test(ViewExercise::class, ['record' => $exercise->getRouteKey()])
         ->assertSee('Detail Exercise')
-        ->assertSee('Shoulders')
+        ->assertSee('Hombros')
         ->assertSee('Dumbbells')
-        ->assertSee('Beginner')
+        ->assertSee('Principiante')
         ->assertSee('Press the dumbbells overhead.')
         ->assertSee('https://example.com/video')
-        ->assertSee('Active');
+        ->assertSee('Activo');
 });
 
 it('lets ADMIN edit an active exercise and persist the changes', function () {

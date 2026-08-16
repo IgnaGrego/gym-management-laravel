@@ -220,7 +220,7 @@ it('shows the payment detail and does not expose edit or delete', function () {
         ->assertSee('Payment Client')
         ->assertSee('Payment Plan')
         ->assertSee('REF-1')
-        ->assertSee('Confirmed');
+        ->assertSee('Confirmado');
 
     Livewire::actingAs($admin)
         ->test(ListPayments::class)

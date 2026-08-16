@@ -23,9 +23,13 @@ class AttendanceResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
 
-    protected static ?string $navigationLabel = 'Attendance';
+    protected static ?string $navigationLabel = 'Asistencia';
 
-    protected static ?string $navigationGroup = 'Attendance';
+    protected static ?string $navigationGroup = 'Asistencia';
+
+    protected static ?string $modelLabel = 'Asistencia';
+
+    protected static ?string $pluralModelLabel = 'Asistencias';
 
     /**
      * Check-in form (SPEC-008 FR-001, FR-005; BR-002, BR-003, BR-007,
@@ -57,10 +61,10 @@ class AttendanceResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Check-in')
+                Forms\Components\Section::make('Registro de ingreso')
                     ->schema([
                         Forms\Components\Select::make('client_id')
-                            ->label('Client')
+                            ->label('Cliente')
                             ->relationship('client', 'full_name')
                             ->searchable(['full_name', 'dni'])
                             ->preload()
@@ -69,11 +73,11 @@ class AttendanceResource extends Resource
                             ->exists('clients', 'id')
                             ->rule(static fn (): Closure => static::accessGateRule()),
                         Forms\Components\Placeholder::make('access_decision')
-                            ->label('Access decision')
+                            ->label('Decisión de acceso')
                             ->content(fn (Get $get): string => static::accessDecisionText($get('client_id')))
                             ->hidden(fn (Get $get): bool => blank($get('client_id'))),
                         Forms\Components\DateTimePicker::make('attended_at')
-                            ->label('Attended at')
+                            ->label('Asistió el')
                             ->seconds(false)
                             ->displayFormat('Y-m-d H:i')
                             ->required()
@@ -87,6 +91,7 @@ class AttendanceResource extends Resource
                             ->nullable()
                             ->exists('turnos', 'id'),
                         Forms\Components\Textarea::make('notes')
+                            ->label('Notas')
                             ->maxLength(500),
                     ])
                     ->columns(2),
@@ -104,20 +109,22 @@ class AttendanceResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('Attendance')
+                Infolists\Components\Section::make('Asistencia')
                     ->schema([
                         Infolists\Components\TextEntry::make('client.full_name')
-                            ->label('Client'),
+                            ->label('Cliente'),
                         Infolists\Components\TextEntry::make('client.dni')
                             ->label('DNI'),
                         Infolists\Components\TextEntry::make('attended_at')
+                            ->label('Asistió el')
                             ->dateTime('Y-m-d H:i'),
                         Infolists\Components\TextEntry::make('recordedBy.name')
-                            ->label('Recorded by'),
+                            ->label('Registrado por'),
                         Infolists\Components\TextEntry::make('turno.label')
                             ->label('Turno')
                             ->placeholder('—'),
                         Infolists\Components\TextEntry::make('notes')
+                            ->label('Notas')
                             ->placeholder('—'),
                     ])
                     ->columns(2),
@@ -141,20 +148,22 @@ class AttendanceResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('client.full_name')
-                    ->label('Client')
+                    ->label('Cliente')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('client.dni')
                     ->label('DNI')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('attended_at')
+                    ->label('Asistió el')
                     ->dateTime('Y-m-d H:i')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('recordedBy.name')
-                    ->label('Recorded by'),
+                    ->label('Registrado por'),
                 Tables\Columns\TextColumn::make('turno.label')
                     ->label('Turno')
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('notes')
+                    ->label('Notas')
                     ->placeholder('—')
                     ->limit(50)
                     ->toggleable(),
@@ -162,14 +171,16 @@ class AttendanceResource extends Resource
             ->defaultSort('attended_at')
             ->filters([
                 Tables\Filters\SelectFilter::make('client_id')
-                    ->label('Client')
+                    ->label('Cliente')
                     ->relationship('client', 'full_name')
                     ->searchable(['full_name', 'dni'])
                     ->preload(),
                 Tables\Filters\Filter::make('attended_at')
                     ->form([
-                        Forms\Components\DatePicker::make('attended_from'),
-                        Forms\Components\DatePicker::make('attended_until'),
+                        Forms\Components\DatePicker::make('attended_from')
+                            ->label('Desde'),
+                        Forms\Components\DatePicker::make('attended_until')
+                            ->label('Hasta'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -183,7 +194,7 @@ class AttendanceResource extends Resource
                             );
                     }),
                 Tables\Filters\SelectFilter::make('recorded_by')
-                    ->label('Recorded by')
+                    ->label('Registrado por')
                     ->relationship('recordedBy', 'name'),
                 Tables\Filters\SelectFilter::make('turno_id')
                     ->label('Turno')
@@ -254,7 +265,7 @@ class AttendanceResource extends Resource
         $reason = $client->accessDenialReason();
 
         return $reason === null
-            ? 'Qualified — this client can be checked in.'
+            ? 'Calificado — este cliente puede registrarse el ingreso.'
             : static::denialMessage($reason);
     }
 
@@ -264,10 +275,10 @@ class AttendanceResource extends Resource
     protected static function denialMessage(string $reason): string
     {
         return match ($reason) {
-            Client::ACCESS_DENIED_NO_MEMBERSHIP => 'This client has no membership and cannot be checked in.',
-            Client::ACCESS_DENIED_MEMBERSHIP_EXPIRED => 'This client\'s membership has expired and cannot be checked in.',
-            Client::ACCESS_DENIED_NO_ACTIVE_MEMBERSHIP => 'This client has no active membership and cannot be checked in.',
-            default => 'This client cannot be checked in.',
+            Client::ACCESS_DENIED_NO_MEMBERSHIP => 'Este cliente no tiene membresía y no puede registrarse el ingreso.',
+            Client::ACCESS_DENIED_MEMBERSHIP_EXPIRED => 'La membresía de este cliente venció y no puede registrarse el ingreso.',
+            Client::ACCESS_DENIED_NO_ACTIVE_MEMBERSHIP => 'Este cliente no tiene membresía activa y no puede registrarse el ingreso.',
+            default => 'Este cliente no puede registrarse el ingreso.',
         };
     }
 

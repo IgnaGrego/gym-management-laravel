@@ -29,6 +29,22 @@ class Turno extends Model
     public const STATUS_CANCELLED = 'cancelled';
 
     /**
+     * Turno-status display labels (presentation only; SPEC-016 FR-006,
+     * ADR-009). Keyed by the stored identifier; the persisted value is never
+     * changed.
+     *
+     * @return array<string, string>
+     */
+    public static function statusLabels(): array
+    {
+        return [
+            static::STATUS_ACTIVE => 'Activo',
+            static::STATUS_INACTIVE => 'Inactivo',
+            static::STATUS_CANCELLED => 'Cancelado',
+        ];
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -120,7 +136,7 @@ class Turno extends Model
     public function deactivate(): void
     {
         if ($this->status !== static::STATUS_ACTIVE) {
-            throw new DomainException('Only an active turno can be deactivated.');
+            throw new DomainException('Solo un turno activo puede desactivarse.');
         }
 
         DB::transaction(function (): void {
@@ -142,7 +158,7 @@ class Turno extends Model
     public function reactivate(): void
     {
         if ($this->status !== static::STATUS_INACTIVE) {
-            throw new DomainException('Only an inactive turno can be reactivated.');
+            throw new DomainException('Solo un turno inactivo puede reactivarse.');
         }
 
         $this->status = static::STATUS_ACTIVE;
@@ -165,7 +181,7 @@ class Turno extends Model
     public function cancel(): void
     {
         if (! in_array($this->status, [static::STATUS_ACTIVE, static::STATUS_INACTIVE], true)) {
-            throw new DomainException('Only active or inactive turnos can be cancelled.');
+            throw new DomainException('Solo los turnos activos o inactivos pueden cancelarse.');
         }
 
         DB::transaction(function (): void {
@@ -238,7 +254,7 @@ class Turno extends Model
     public function assertCapacityLimitNotBelowConfirmed(int $newLimit): void
     {
         if ($newLimit < $this->confirmedBookingsCount()) {
-            throw new DomainException('The capacity limit cannot be lowered below the number of confirmed bookings.');
+            throw new DomainException('El cupo máximo no puede reducirse por debajo del número de reservas confirmadas.');
         }
     }
 }

@@ -36,7 +36,7 @@ class ViewRoutine extends ViewRecord
         return [
             Actions\EditAction::make(),
             Actions\Action::make('activate')
-                ->label('Activate')
+                ->label('Activar')
                 ->icon('heroicon-o-arrow-up-circle')
                 ->color('success')
                 ->requiresConfirmation()
@@ -53,14 +53,14 @@ class ViewRoutine extends ViewRecord
                     }
                 }),
             Actions\Action::make('assign')
-                ->label('Assign to clients')
+                ->label('Asignar a clientes')
                 ->icon('heroicon-o-user-plus')
                 ->color('primary')
                 ->visible(fn (Routine $record): bool => $record->status === Routine::STATUS_ACTIVE)
                 ->authorize(fn (Routine $record): bool => auth()->user()->can('update', $record))
                 ->form([
                     Forms\Components\Select::make('client_ids')
-                        ->label('Clients')
+                        ->label('Clientes')
                         ->options(fn (): array => Client::query()->pluck('full_name', 'id')->all())
                         ->multiple()
                         ->searchable()

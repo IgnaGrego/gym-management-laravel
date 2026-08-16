@@ -275,7 +275,7 @@ it('rejects a routine-exercise reference from a version the client was never ass
         ])
         ->call('create')
         ->assertHasFormErrors(['routine_exercise_id'])
-        ->assertSee('never been assigned');
+        ->assertSee('nunca fue asignado');
 
     expect(WorkoutLog::count())->toBe(0);
 });
@@ -305,7 +305,7 @@ it('rejects a routine-exercise reference from a draft version', function () {
         ])
         ->call('create')
         ->assertHasFormErrors(['routine_exercise_id'])
-        ->assertSee('never been assigned');
+        ->assertSee('nunca fue asignado');
 
     expect(WorkoutLog::count())->toBe(0);
 });
@@ -402,7 +402,7 @@ it('rejects a free log referencing an inactive exercise', function () {
         ])
         ->call('create')
         ->assertHasFormErrors(['exercise_id'])
-        ->assertSee('active exercise');
+        ->assertSee('ejercicio activo');
 
     expect(WorkoutLog::count())->toBe(0);
 });

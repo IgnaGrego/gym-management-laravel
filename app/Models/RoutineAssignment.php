@@ -66,7 +66,7 @@ class RoutineAssignment extends Model
     public function deactivate(): void
     {
         if ($this->is_active !== true) {
-            throw new DomainException('Only an active assignment can be deactivated.');
+            throw new DomainException('Solo una asignación activa puede desactivarse.');
         }
 
         $this->is_active = false;

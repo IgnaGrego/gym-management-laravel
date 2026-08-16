@@ -218,7 +218,7 @@ it('lets ADMIN view the full plan detail including status', function () {
         ->assertSee('A detailed plan description.')
         ->assertSee('950.00')
         ->assertSee('250.00')
-        ->assertSee('Active');
+        ->assertSee('Activo');
 });
 
 it('lets ADMIN edit a plan and persist the changes', function () {

@@ -24,13 +24,13 @@ it('shows the authenticated client their own profile data and status', function 
     $this->actingAs($client->user)
         ->get('/portal')
         ->assertOk()
-        ->assertSee('Client portal')
+        ->assertSee('Portal del cliente')
         ->assertSee('El Area Gym')
         ->assertSee('Juan Pérez')
         ->assertSee('12345678')
         ->assertSee('juan@example.com')
         ->assertSee('+54 9 11 5555 1234')
-        ->assertSee(Client::STATUS_ACTIVE);
+        ->assertSee('Activo');
 });
 
 it('does not leak another client profile to the authenticated client', function () {
@@ -72,7 +72,7 @@ it('renders a neutral placeholder when optional contact fields are null', functi
         ->assertOk()
         ->assertSee('Carol Null')
         ->assertSee('33333333')
-        ->assertSee('Not provided');
+        ->assertSee('No informado');
 });
 
 it('shows the ERR-005 notice when a CLIENT has no linked Client record', function () {
@@ -81,9 +81,9 @@ it('shows the ERR-005 notice when a CLIENT has no linked Client record', functio
     $this->actingAs($user)
         ->get('/portal')
         ->assertOk()
-        ->assertSee('Client portal')
+        ->assertSee('Portal del cliente')
         ->assertSee('Perfil no disponible. Contactá a recepción.')
-        ->assertDontSee('Not provided');
+        ->assertDontSee('No informado');
 });
 
 it('keeps the portal logout as a POST form with CSRF', function () {

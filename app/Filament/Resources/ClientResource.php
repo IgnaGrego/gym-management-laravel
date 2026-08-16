@@ -20,7 +20,11 @@ class ClientResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-identification';
 
-    protected static ?string $navigationLabel = 'Clients';
+    protected static ?string $navigationLabel = 'Clientes';
+
+    protected static ?string $modelLabel = 'Cliente';
+
+    protected static ?string $pluralModelLabel = 'Clientes';
 
     /**
      * Client create/edit form (SPEC-002 FR-001, FR-004, FR-007).
@@ -36,32 +40,39 @@ class ClientResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Identity')
+                Forms\Components\Section::make('Identidad')
                     ->schema([
                         Forms\Components\TextInput::make('full_name')
+                            ->label('Nombre completo')
                             ->required()
                             ->maxLength(255),
                         Forms\Components\TextInput::make('dni')
+                            ->label('DNI')
                             ->required()
                             ->maxLength(255)
                             ->unique(ignoreRecord: true),
                     ])
                     ->columns(2),
-                Forms\Components\Section::make('Contact')
+                Forms\Components\Section::make('Contacto')
                     ->schema([
                         Forms\Components\TextInput::make('email')
+                            ->label('Email')
                             ->email()
                             ->maxLength(255),
                         Forms\Components\TextInput::make('phone')
+                            ->label('Teléfono')
                             ->maxLength(255),
                     ])
                     ->columns(2),
-                Forms\Components\Section::make('Health notes')
+                Forms\Components\Section::make('Notas de salud')
                     ->schema([
                         Forms\Components\TextInput::make('emergency_contact')
+                            ->label('Contacto de emergencia')
                             ->maxLength(255),
-                        Forms\Components\Textarea::make('injuries_notes'),
-                        Forms\Components\Textarea::make('medical_conditions_notes'),
+                        Forms\Components\Textarea::make('injuries_notes')
+                            ->label('Notas de lesiones'),
+                        Forms\Components\Textarea::make('medical_conditions_notes')
+                            ->label('Notas de condiciones médicas'),
                     ]),
             ]);
     }
@@ -77,57 +88,66 @@ class ClientResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('Identity')
+                Infolists\Components\Section::make('Identidad')
                     ->schema([
-                        Infolists\Components\TextEntry::make('full_name'),
-                        Infolists\Components\TextEntry::make('dni'),
+                        Infolists\Components\TextEntry::make('full_name')
+                            ->label('Nombre completo'),
+                        Infolists\Components\TextEntry::make('dni')
+                            ->label('DNI'),
                         Infolists\Components\TextEntry::make('status')
+                            ->label('Estado')
                             ->badge()
                             ->color(fn (string $state): string => match ($state) {
                                 Client::STATUS_PENDING => 'warning',
                                 Client::STATUS_REJECTED => 'danger',
                                 default => 'success',
-                            }),
+                            })
+                            ->formatStateUsing(fn (string $state): string => Client::statusLabels()[$state] ?? $state),
                     ])
                     ->columns(2),
-                Infolists\Components\Section::make('Contact')
+                Infolists\Components\Section::make('Contacto')
                     ->schema([
                         Infolists\Components\TextEntry::make('email')
+                            ->label('Email')
                             ->placeholder('—'),
                         Infolists\Components\TextEntry::make('phone')
+                            ->label('Teléfono')
                             ->placeholder('—'),
                     ])
                     ->columns(2),
-                Infolists\Components\Section::make('Health notes')
+                Infolists\Components\Section::make('Notas de salud')
                     ->schema([
                         Infolists\Components\TextEntry::make('emergency_contact')
+                            ->label('Contacto de emergencia')
                             ->placeholder('—'),
                         Infolists\Components\TextEntry::make('injuries_notes')
+                            ->label('Notas de lesiones')
                             ->placeholder('—'),
                         Infolists\Components\TextEntry::make('medical_conditions_notes')
+                            ->label('Notas de condiciones médicas')
                             ->placeholder('—'),
                     ]),
-                Infolists\Components\Section::make('Linked account')
+                Infolists\Components\Section::make('Cuenta vinculada')
                     ->schema([
                         Infolists\Components\TextEntry::make('user.email')
-                            ->label('Login email')
-                            ->placeholder('No account'),
+                            ->label('Email de acceso')
+                            ->placeholder('Sin cuenta'),
                         Infolists\Components\TextEntry::make('user.is_active')
-                            ->label('Account status')
+                            ->label('Estado de la cuenta')
                             ->formatStateUsing(fn (?bool $state): string => match ($state) {
-                                true => 'Active',
-                                false => 'Inactive',
+                                true => 'Activo',
+                                false => 'Inactivo',
                                 null => '—',
                             }),
                     ])
                     ->columns(2),
-                Infolists\Components\Section::make('Current routine')
+                Infolists\Components\Section::make('Rutina actual')
                     ->schema([
                         Infolists\Components\TextEntry::make('current_routine')
-                            ->label('Current routine')
+                            ->label('Rutina actual')
                             ->state(fn (Client $record): string => $record->currentRoutine() !== null
                                 ? $record->currentRoutine()->name.' — v'.$record->currentRoutine()->version_number
-                                : 'No routine assigned'),
+                                : 'Sin rutina asignada'),
                     ]),
             ]);
     }
@@ -144,41 +164,45 @@ class ClientResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('full_name')
+                    ->label('Nombre completo')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('dni')
+                    ->label('DNI')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
+                    ->label('Email')
                     ->searchable()
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('phone')
+                    ->label('Teléfono')
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('user.email')
-                    ->label('Linked account')
-                    ->placeholder('No account'),
+                    ->label('Cuenta vinculada')
+                    ->placeholder('Sin cuenta'),
                 Tables\Columns\IconColumn::make('user.is_active')
-                    ->label('Account active')
+                    ->label('Cuenta activa')
                     ->boolean()
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('status')
+                    ->label('Estado')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         Client::STATUS_PENDING => 'warning',
                         Client::STATUS_REJECTED => 'danger',
                         default => 'success',
-                    }),
+                    })
+                    ->formatStateUsing(fn (string $state): string => Client::statusLabels()[$state] ?? $state),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('status')->options([
-                    Client::STATUS_PENDING => 'Pending',
-                    Client::STATUS_ACTIVE => 'Active',
-                    Client::STATUS_REJECTED => 'Rejected',
-                ]),
+                Tables\Filters\SelectFilter::make('status')
+                    ->label('Estado')
+                    ->options(Client::statusLabels()),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('approve')
-                    ->label('Approve')
+                    ->label('Aprobar')
                     ->color('success')
                     ->requiresConfirmation()
                     ->visible(fn (Client $record): bool => $record->isPending())
@@ -187,7 +211,7 @@ class ClientResource extends Resource
                         $record->approve();
                     }),
                 Tables\Actions\Action::make('reject')
-                    ->label('Reject')
+                    ->label('Rechazar')
                     ->color('danger')
                     ->requiresConfirmation()
                     ->visible(fn (Client $record): bool => $record->isPending())

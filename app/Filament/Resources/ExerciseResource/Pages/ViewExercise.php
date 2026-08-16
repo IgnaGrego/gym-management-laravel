@@ -26,7 +26,7 @@ class ViewExercise extends ViewRecord
         return [
             Actions\EditAction::make(),
             Actions\Action::make('deactivate')
-                ->label('Deactivate')
+                ->label('Desactivar')
                 ->icon('heroicon-o-arrow-down-circle')
                 ->color('warning')
                 ->requiresConfirmation()
@@ -34,7 +34,7 @@ class ViewExercise extends ViewRecord
                 ->authorize(fn (Exercise $record): bool => auth()->user()->can('update', $record))
                 ->action(fn (Exercise $record) => $record->update(['is_active' => false])),
             Actions\Action::make('activate')
-                ->label('Activate')
+                ->label('Activar')
                 ->icon('heroicon-o-arrow-up-circle')
                 ->color('success')
                 ->requiresConfirmation()

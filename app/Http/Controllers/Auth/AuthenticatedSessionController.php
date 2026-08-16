@@ -48,7 +48,7 @@ class AuthenticatedSessionController extends Controller
         if (! $user->hasAnyRole([Role::ADMIN, Role::TRAINER, Role::CLIENT])) {
             $request->session()->flash(
                 'status',
-                'Your account has no assigned roles yet. Contact an administrator.'
+                'Tu cuenta aún no tiene roles asignados. Contactá a un administrador.'
             );
         }
 
