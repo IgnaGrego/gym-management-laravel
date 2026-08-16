@@ -29,7 +29,7 @@ RUN apk add --no-cache \
         libjpeg-turbo-dev \
         freetype-dev \
         oniguruma-dev \
-        postgresql-client \
+        postgresql-dev \
         $PHPIZE_DEPS \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
