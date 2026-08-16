@@ -14,11 +14,11 @@ propio Nginx.
 
 | Recurso | Valor | Nota |
 | --- | --- | --- |
-| CPU | 1 vCPU | Suficiente para tráfico bajo |
-| RAM | 2 GB | Holgado para 3-5 apps livianas compartiendo recursos |
-| Disco | 50 GB NVMe | Sobra |
-| OS | Ubuntu 22.04 / 24.04 LTS | Recomendado |
-| Bandwidth | Unmetered | Ideal para portfolio |
+| CPU | 2 vCPU | Suficiente para tráfico bajo |
+| RAM | 4 GB | Holgado para 3-5 apps livianas compartiendo recursos |
+| Disco | 100 GB NVMe | Sobra con margen |
+| OS | Ubuntu 24.04 LTS | Recomendado |
+| Bandwidth | 4 TB | Más que suficiente para portfolio |
 
 Si el portfolio supera ~5 proyectos con DB propias, escalar a 4 GB RAM.
 
@@ -66,15 +66,29 @@ Reglas:
 | `db` | `postgres:16-alpine` | Base de datos |
 | `queue` | misma imagen | Cola de trabajos |
 | `scheduler` | misma imagen | Tareas programadas (`memberships:expire`) |
+| `nginx` | `nginx:1.27-alpine` | Sirve la app; escucha el puerto `APP_PORT` |
 
-Nginx **no vive dentro** del compose de cada proyecto: es el central del VPS.
+En este proyecto el **Nginx vive dentro del compose** y publica el puerto
+`APP_PORT` (default `8081`). Si más adelante se agregan más proyectos del
+portfolio, se puede poner un **Nginx central en el host** que haga de reverse
+proxy hacia el `APP_PORT` de cada proyecto (ver §5.3).
 
 ## 4. Flujo de una petición
 
+Modo actual (IP + puerto):
+
+```
+Navegador → http://IP:APP_PORT → Nginx del compose (puerto 80 interno)
+          → try_files → fastcgi a app:9000 (PHP-FPM)
+          → Laravel procesa → consulta PostgreSQL → devuelve HTML
+```
+
+Modo futuro (dominio + Nginx central):
+
 ```
 Navegador → DNS (gym.tu.com → IP VPS) → NGINX central (80/443)
-          → identifica server_name → proxy_pass a app:9000
-          → Laravel procesa → consulta PostgreSQL → devuelve HTML
+          → identifica server_name → proxy_pass a 127.0.0.1:APP_PORT
+          → Nginx del proyecto → Laravel → PostgreSQL → HTML
 ```
 
 ## 5. Pasos de puesta en producción
@@ -86,21 +100,34 @@ Navegador → DNS (gym.tu.com → IP VPS) → NGINX central (80/443)
 
 ### 5.2 En el VPS (primera vez)
 
-1. Crear el VPS (Ubuntu) y anotar la IP.
+1. Crear el VPS (Ubuntu 24.04 LTS) y anotar la IP.
 2. Conectar por SSH: `ssh root@IP`.
-3. Crear usuario no-root con sudo (buena práctica).
-4. Configurar firewall (ufw): permitir SSH (22) y HTTP/HTTPS (80, 443).
-5. Instalar Docker Engine + Compose plugin.
-6. Clonar el repo: `git clone git@github.com:usuario/repo.git /srv/apps/gym`.
+3. Crear usuario no-root con sudo (buena práctica, ver §6).
+4. Configurar firewall (ufw): permitir SSH (22) y HTTP/HTTPS (80, 443), y el
+   puerto de la app (`ufw allow 8081`) si se va a acceder por IP + puerto.
+5. Instalar Docker Engine + Compose plugin:
+   `curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh`
+6. Clonar el repo: `git clone https://github.com/usuario/repo.git /srv/apps/gym`.
 7. Crear `/srv/apps/gym/.env` desde `.env.production.example` y completar:
-   - `APP_KEY` (generar con `php artisan key:generate` o `openssl rand -base64 32`)
-   - `APP_URL=https://gym.tu.com`
+   - `APP_KEY` (generar con `openssl rand -base64 32`, usar formato `base64:...`)
+   - `APP_URL` → **http://IP:APP_PORT** si se accede por IP (¡incluir el puerto!),
+     o `https://gym.tu.com` una vez configurado el dominio
    - `DB_PASSWORD` (fuerte)
    - `ADMIN_EMAIL`, `ADMIN_PASSWORD`
    - credenciales SMTP reales (opcional)
-8. `docker compose build` (lento la primera vez, normal).
-9. `docker compose up -d`.
-10. Verificar: `curl -I http://IP` y `docker compose logs app`.
+8. `docker compose up -d --build` (lento la primera vez, normal).
+9. Verificar: `curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:APP_PORT`
+   (debe dar `200`) y `docker compose ps`.
+10. Publicar los assets del admin (Filament) en el host, porque el Nginx lee
+    los archivos desde el host (montado `./`), no desde la imagen:
+    ```bash
+    docker compose exec --user root app php artisan filament:assets
+    docker cp gym-management-app-1:/var/www/html/public/css /srv/apps/gym/public/css
+    docker cp gym-management-app-1:/var/www/html/public/js  /srv/apps/gym/public/js
+    ```
+    > El `--user root` es necesario porque el contenedor corre como `www-data`
+    > y no puede escribir en `public/` (error "Permission denied").
+11. Acceder por navegador: `http://IP:APP_PORT` y `/admin`.
 
 ### 5.3 Nginx central (multi-proyecto)
 
@@ -154,9 +181,35 @@ docker compose ps
 # Reiniciar un servicio
 docker compose restart app
 
+# Forzar recreación de un contenedor (tras cambiar una config montada)
+docker compose up -d --force-recreate nginx
+
 # Migraciones (no bloquea: el servicio migrate ya lo hace al arrancar)
 docker compose run --rm migrate
+
+# Limpiar caches de Laravel (tras cambiar el .env o el código)
+docker compose exec app php artisan optimize:clear
 ```
+
+### Usuarios (tinker)
+
+```bash
+# Cambiar la contraseña del primer usuario ADMIN
+docker compose exec app php artisan tinker --execute="
+  \$u = App\Models\User::whereHas('roles', fn(\$q) => \$q->where('name','ADMIN'))->first();
+  \$u->update(['password'=>bcrypt('NuevaPassword123!')]);
+  echo \$u->email;"
+
+# Crear un usuario CLIENT de prueba
+docker compose exec app php artisan tinker --execute="
+  \$user = App\Models\User::firstOrCreate(['email'=>'cliente@gym.com'],
+    ['name'=>'Cliente Prueba','password'=>bcrypt('Cliente123!'),'is_active'=>true]);
+  \$user->roles()->syncWithoutDetaching(App\Models\Role::where('name','CLIENT')->first());
+  echo 'CLIENT: '.\$user->email;"
+```
+
+> Los roles posibles son `ADMIN`, `TRAINER`, `CLIENT`. El panel admin está en
+> `/admin`; el portal del cliente en `/portal`.
 
 ## 8. Almacenamiento y datos
 
@@ -166,7 +219,63 @@ docker compose run --rm migrate
 - Restore:
   `cat backup.sql | docker compose exec -T db psql -U gym gym`
 
-## 9. Próximos pasos
+## 9. Troubleshooting (errores encontrados en el deploy real)
+
+Problemas reales y sus soluciones, para no repetirlos en deploy limpios.
+
+### 9.1 `configure: error: Cannot find libpq-fe.h` / `pg_config... not found`
+
+Al construir la imagen (`Dockerfile`), PHP no puede compilar `pdo_pgsql`.
+**Causa:** falta el paquete de desarrollo. En Alpine se usa **`postgresql-dev`**.
+**Además** mantener **`postgresql-client`**: el `entrypoint.sh` usa `pg_isready`
+para esperar a PostgreSQL, y ese binario viene del paquete `client`, no del `dev`.
+→ Se necesitan **ambos**.
+
+### 9.2 `configure: error: Package 'sqlite3' not found`
+
+**Causa:** `pdo_sqlite` requiere el paquete de desarrollo **`sqlite-dev`** en Alpine.
+→ Agregar `sqlite-dev` a los `apk add` del `Dockerfile`.
+
+### 9.3 `migrate` se queda en "Waiting for PostgreSQL..." para siempre
+
+El contenedor `migrate` espera horas. **Causa:** el comando `pg_isready` no
+existe porque se quitó `postgresql-client` (ver §9.1). El `until` nunca es true.
+→ Garantizar `postgresql-client` en la imagen.
+
+### 9.4 `Unable to prepare route [login] for serialization`
+
+Las rutas GET y POST de `/login` tenían **ambas** el nombre `login`. Laravel
+no permite nombres de ruta duplicados al cachear.
+→ Renombrar la POST a `login.store` (GET conserva `login`).
+
+### 9.5 Admin (Filament) se ve en negro y desloguea
+
+**Dos causas posibles, verificar ambas:**
+
+a) **Assets de Filament no publicados.** El panel no tiene CSS/JS. Fix:
+   `docker compose exec --user root app php artisan filament:assets` y copiar
+   al host (ver §5.2 paso 10). El `Dockerfile` ya incluye
+   `php artisan filament:assets` para el próximo build.
+
+b) **`APP_URL` mal configurada.** Si `APP_URL=https://IP` (o sin el puerto),
+   los assets se piden en HTTPS/no existe el puerto → 404.
+   → Usar `APP_URL=http://IP:APP_PORT` (con `http://` y el puerto).
+
+### 9.6 `livewire.min.js` da 404 (admin en negro)
+
+**Causa:** el `default.conf` de Nginx tiene una regla de assets estáticos
+`location ~* \.(css|js|...)$` que **gana** sobre `location /livewire/`
+(nginx prioriza las regex sobre los prefijos). Como `livewire.min.js` termina
+en `.js`, se trata como archivo estático inexistente.
+→ Usar **`location ^~ /livewire/`** — el `^~` fuerza al prefijo a ganar sobre
+la regex. El `default.conf` ya tiene la corrección.
+
+### 9.7 Los cambios de `default.conf` no surten efecto
+
+Docker reutiliza el contenedor existente sin re-montar la config cambiada.
+→ Usar `docker compose up -d --force-recreate nginx`.
+
+## 10. Próximos pasos
 
 1. Comprar VPS + dominio.
 2. (Este repo) Ajustar compose para el patrón central si se decide compartir Nginx.
