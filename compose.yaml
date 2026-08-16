@@ -84,10 +84,12 @@ services:
       # Portfolio pattern: each project publishes a UNIQUE host port
       # (8081, 8082, ...) via APP_PORT. The central VPS nginx proxies
       # gym.tudominio.com -> 127.0.0.1:8081.
-      - "${APP_PORT:-8081}:80"
+      - "${APP_PORT:-80}:80"
+      - "443:443"
     volumes:
       - ./:/var/www/html:ro
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
       - app_storage:/var/www/html/storage:ro
     depends_on:
       - app
