@@ -41,5 +41,14 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('registration', function (Request $request) {
             return Limit::perMinute(5)->by($request->ip());
         });
+
+        // Demo hardening (SPEC-016): cap write requests to the admin panel per
+        // IP so a public demo instance cannot be flooded with record creation
+        // (clients, plans, memberships, etc.). 120 writes/minute is generous
+        // for a human operator yet blocks scripted bulk-abuse in seconds.
+        // Only enforced when the panel is publicly reachable (demo mode).
+        RateLimiter::for('admin-write', function (Request $request) {
+            return Limit::perMinute(120)->by($request->ip());
+        });
     }
 }

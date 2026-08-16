@@ -13,3 +13,9 @@ Artisan::command('inspire', function () {
 // Requires the Laravel scheduler to run in every environment
 // (`php artisan schedule:run` every minute via cron, or equivalent in Docker).
 Schedule::command('memberships:expire')->dailyAt('00:05');
+
+// Nightly demo reset so a public portfolio demo can never be permanently
+// polluted or abused: transactional/demo data is wiped and reseeded (SPEC-016).
+// Skipped automatically in production (demo:reset guard). Requires the same
+// scheduler as above.
+Schedule::command('demo:reset')->dailyAt('04:00');
