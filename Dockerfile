@@ -29,6 +29,7 @@ RUN apk add --no-cache \
         libjpeg-turbo-dev \
         freetype-dev \
         oniguruma-dev \
+        postgresql-client \
         postgresql-dev \
         sqlite-dev \
         $PHPIZE_DEPS \
