@@ -30,6 +30,7 @@ RUN apk add --no-cache \
         freetype-dev \
         oniguruma-dev \
         postgresql-dev \
+        sqlite-dev \
         $PHPIZE_DEPS \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
