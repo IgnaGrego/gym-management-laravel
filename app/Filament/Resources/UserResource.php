@@ -17,23 +17,30 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $navigationLabel = 'Users';
+    protected static ?string $navigationLabel = 'Usuarios';
 
-    protected static ?string $navigationGroup = 'Administration';
+    protected static ?string $navigationGroup = 'Administración';
+
+    protected static ?string $modelLabel = 'Usuario';
+
+    protected static ?string $pluralModelLabel = 'Usuarios';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label('Nombre')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
+                    ->label('Email')
                     ->email()
                     ->required()
                     ->maxLength(255)
                     ->unique(ignoreRecord: true),
                 Forms\Components\TextInput::make('password')
+                    ->label('Contraseña')
                     ->password()
                     ->required()
                     ->minLength(8)
@@ -41,10 +48,12 @@ class UserResource extends Resource
                     ->dehydrated(fn (?string $state) => filled($state))
                     ->hiddenOn('edit'),
                 Forms\Components\CheckboxList::make('roles')
+                    ->label('Roles')
                     ->relationship('roles', 'name')
                     ->options(fn (?User $record) => static::roleOptions($record))
                     ->columns(2),
                 Forms\Components\Toggle::make('is_active')
+                    ->label('Cuenta activa')
                     ->default(true),
             ]);
     }
@@ -54,16 +63,21 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nombre')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
+                    ->label('Email')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('roles.name')
+                    ->label('Roles')
                     ->badge(),
                 Tables\Columns\IconColumn::make('is_active')
+                    ->label('Cuenta activa')
                     ->boolean(),
             ])
             ->filters([
-                Tables\Filters\TernaryFilter::make('is_active'),
+                Tables\Filters\TernaryFilter::make('is_active')
+                    ->label('Cuenta activa'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -91,12 +105,12 @@ class UserResource extends Resource
     protected static function roleOptions(?User $record): array
     {
         $options = [
-            Role::ADMIN => 'Admin',
-            Role::TRAINER => 'Trainer',
+            Role::ADMIN => 'Administrador',
+            Role::TRAINER => 'Entrenador',
         ];
 
         if ($record?->hasRole(Role::CLIENT)) {
-            $options[Role::CLIENT] = 'Client';
+            $options[Role::CLIENT] = 'Cliente';
         }
 
         return $options;

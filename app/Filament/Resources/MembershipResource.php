@@ -24,9 +24,13 @@ class MembershipResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
-    protected static ?string $navigationLabel = 'Memberships';
+    protected static ?string $navigationLabel = 'Membresías';
 
-    protected static ?string $navigationGroup = 'Commercial';
+    protected static ?string $navigationGroup = 'Comercial';
+
+    protected static ?string $modelLabel = 'Membresía';
+
+    protected static ?string $pluralModelLabel = 'Membresías';
 
     /**
      * Membership create form (SPEC-004 FR-001).
@@ -46,10 +50,10 @@ class MembershipResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Membership')
+                Forms\Components\Section::make('Membresía')
                     ->schema([
                         Forms\Components\Select::make('client_id')
-                            ->label('Client')
+                            ->label('Cliente')
                             ->relationship('client', 'full_name')
                             ->searchable()
                             ->preload()
@@ -66,9 +70,10 @@ class MembershipResource extends Resource
                             ->rule(fn (): Exists => Rule::exists('plans', 'id')
                                 ->where('is_active', true)),
                         Forms\Components\DatePicker::make('start_date')
+                            ->label('Fecha de inicio')
                             ->required(),
                         Forms\Components\TextInput::make('duration_days')
-                            ->label('Duration (days)')
+                            ->label('Duración (días)')
                             ->numeric()
                             ->required()
                             ->integer()
@@ -89,24 +94,27 @@ class MembershipResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('Membership')
+                Infolists\Components\Section::make('Membresía')
                     ->schema([
                         Infolists\Components\TextEntry::make('client.full_name')
-                            ->label('Client'),
+                            ->label('Cliente'),
                         Infolists\Components\TextEntry::make('client.dni')
                             ->label('DNI'),
                         Infolists\Components\TextEntry::make('plan.name')
                             ->label('Plan'),
                         Infolists\Components\TextEntry::make('start_date')
+                            ->label('Fecha de inicio')
                             ->date('Y-m-d'),
                         Infolists\Components\TextEntry::make('end_date')
+                            ->label('Fecha de fin')
                             ->date('Y-m-d'),
                         Infolists\Components\TextEntry::make('duration_days')
-                            ->label('Duration (days)'),
+                            ->label('Duración (días)'),
                         Infolists\Components\TextEntry::make('status')
+                            ->label('Estado')
                             ->badge()
                             ->color(fn (string $state): string => static::statusColor($state))
-                            ->formatStateUsing(fn (string $state): string => ucfirst($state)),
+                            ->formatStateUsing(fn (string $state): string => Membership::statusLabels()[$state] ?? $state),
                     ])
                     ->columns(2),
             ]);
@@ -126,7 +134,7 @@ class MembershipResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('client.full_name')
-                    ->label('Client')
+                    ->label('Cliente')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('client.dni')
                     ->label('DNI')
@@ -135,27 +143,29 @@ class MembershipResource extends Resource
                     ->label('Plan')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('start_date')
+                    ->label('Fecha de inicio')
                     ->date('Y-m-d'),
                 Tables\Columns\TextColumn::make('end_date')
+                    ->label('Fecha de fin')
                     ->date('Y-m-d'),
                 Tables\Columns\TextColumn::make('duration_days')
-                    ->label('Duration (days)'),
+                    ->label('Duración (días)'),
                 Tables\Columns\TextColumn::make('status')
+                    ->label('Estado')
                     ->badge()
-                    ->color(fn (string $state): string => static::statusColor($state)),
+                    ->color(fn (string $state): string => static::statusColor($state))
+                    ->formatStateUsing(fn (string $state): string => Membership::statusLabels()[$state] ?? $state),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        Membership::STATUS_PENDING => 'Pending',
-                        Membership::STATUS_ACTIVE => 'Active',
-                        Membership::STATUS_EXPIRED => 'Expired',
-                        Membership::STATUS_CANCELLED => 'Cancelled',
-                    ]),
+                    ->label('Estado')
+                    ->options(Membership::statusLabels()),
                 Tables\Filters\Filter::make('start_date')
                     ->form([
-                        Forms\Components\DatePicker::make('start_from'),
-                        Forms\Components\DatePicker::make('start_until'),
+                        Forms\Components\DatePicker::make('start_from')
+                            ->label('Desde'),
+                        Forms\Components\DatePicker::make('start_until')
+                            ->label('Hasta'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -170,8 +180,10 @@ class MembershipResource extends Resource
                     }),
                 Tables\Filters\Filter::make('end_date')
                     ->form([
-                        Forms\Components\DatePicker::make('end_from'),
-                        Forms\Components\DatePicker::make('end_until'),
+                        Forms\Components\DatePicker::make('end_from')
+                            ->label('Desde'),
+                        Forms\Components\DatePicker::make('end_until')
+                            ->label('Hasta'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -188,7 +200,7 @@ class MembershipResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\Action::make('cancel')
-                    ->label('Cancel')
+                    ->label('Cancelar')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->requiresConfirmation()
@@ -196,18 +208,18 @@ class MembershipResource extends Resource
                     ->authorize(fn (Membership $record): bool => auth()->user()->can('update', $record))
                     ->action(fn (Membership $record) => $record->cancel()),
                 Tables\Actions\Action::make('renew')
-                    ->label('Renew')
+                    ->label('Renovar')
                     ->icon('heroicon-o-arrow-path')
                     ->color('primary')
                     ->visible(fn (Membership $record): bool => in_array($record->status, [Membership::STATUS_ACTIVE, Membership::STATUS_EXPIRED], true))
                     ->authorize(fn (): bool => auth()->user()->can('create', Membership::class))
                     ->form([
                         Forms\Components\DatePicker::make('start_date')
-                            ->label('Start date')
+                            ->label('Fecha de inicio')
                             ->required()
                             ->default(fn (Membership $record): string => $record->end_date->copy()->addDay()->toDateString()),
                         Forms\Components\TextInput::make('duration_days')
-                            ->label('Duration (days)')
+                            ->label('Duración (días)')
                             ->numeric()
                             ->required()
                             ->integer()

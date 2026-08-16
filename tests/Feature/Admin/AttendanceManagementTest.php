@@ -88,7 +88,7 @@ it('rejects a check-in for a client with no membership and shows the no-membersh
         ->fillForm(['client_id' => $client->id])
         ->call('create')
         ->assertHasFormErrors(['client_id'])
-        ->assertSee('has no membership');
+        ->assertSee('no tiene membresía');
 
     expect(Attendance::count())->toBe(0);
 });
@@ -109,7 +109,7 @@ it('rejects a check-in for a client whose memberships are all pending', function
         ->fillForm(['client_id' => $client->id])
         ->call('create')
         ->assertHasFormErrors(['client_id'])
-        ->assertSee('no active membership');
+        ->assertSee('no tiene membresía activa');
 
     expect(Attendance::count())->toBe(0);
 });
@@ -130,7 +130,7 @@ it('rejects a check-in for a client whose memberships are all expired', function
         ->fillForm(['client_id' => $client->id])
         ->call('create')
         ->assertHasFormErrors(['client_id'])
-        ->assertSee('no active membership');
+        ->assertSee('no tiene membresía activa');
 
     expect(Attendance::count())->toBe(0);
 });
@@ -151,7 +151,7 @@ it('rejects a check-in for a client whose memberships are all cancelled', functi
         ->fillForm(['client_id' => $client->id])
         ->call('create')
         ->assertHasFormErrors(['client_id'])
-        ->assertSee('no active membership');
+        ->assertSee('no tiene membresía activa');
 
     expect(Attendance::count())->toBe(0);
 });
@@ -174,7 +174,7 @@ it('rejects a check-in for a client whose only active membership has an expired 
         ->fillForm(['client_id' => $client->id])
         ->call('create')
         ->assertHasFormErrors(['client_id'])
-        ->assertSee('has expired');
+        ->assertSee('venció');
 
     expect(Attendance::count())->toBe(0);
 });
@@ -221,12 +221,12 @@ it('shows the access decision for the selected client', function () {
     Livewire::actingAs($admin)
         ->test(CreateAttendance::class)
         ->fillForm(['client_id' => $qualified->id])
-        ->assertSee('Qualified');
+        ->assertSee('Calificado');
 
     Livewire::actingAs($admin)
         ->test(CreateAttendance::class)
         ->fillForm(['client_id' => $denied->id])
-        ->assertSee('has no membership');
+        ->assertSee('no tiene membresía');
 });
 
 it('rejects a check-in with attended_at in the future', function () {

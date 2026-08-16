@@ -116,7 +116,7 @@ class VersionRoutine
     {
         if ($routine->status !== Routine::STATUS_ACTIVE) {
             throw ValidationException::withMessages([
-                'routine' => 'Only an active routine can be versioned.',
+                'routine' => 'Solo una rutina activa puede versionarse.',
             ]);
         }
 
@@ -137,7 +137,7 @@ class VersionRoutine
 
         if (count($days) === 0) {
             throw ValidationException::withMessages([
-                'days' => 'A routine must have at least one day.',
+                'days' => 'Una rutina debe tener al menos un día.',
             ]);
         }
 
@@ -148,7 +148,7 @@ class VersionRoutine
 
             if (in_array($dayNumber, $dayNumbers, true)) {
                 throw ValidationException::withMessages([
-                    "days.{$dayIndex}.day_number" => 'The day number is duplicated within this routine.',
+                    "days.{$dayIndex}.day_number" => 'El número de día está duplicado en esta rutina.',
                 ]);
             }
 
@@ -158,7 +158,7 @@ class VersionRoutine
 
             if (count($exercises) === 0) {
                 throw ValidationException::withMessages([
-                    "days.{$dayIndex}.exercises" => 'Every routine day must have at least one set.',
+                    "days.{$dayIndex}.exercises" => 'Cada día de la rutina debe tener al menos una serie.',
                 ]);
             }
 
@@ -169,7 +169,7 @@ class VersionRoutine
 
                 if (in_array($setNumber, $setNumbers, true)) {
                     throw ValidationException::withMessages([
-                        "days.{$dayIndex}.exercises.{$exerciseIndex}.set_number" => 'The set number is duplicated within this day.',
+                        "days.{$dayIndex}.exercises.{$exerciseIndex}.set_number" => 'El número de serie está duplicado en este día.',
                     ]);
                 }
 
@@ -179,7 +179,7 @@ class VersionRoutine
 
                 if ($isNewRow && filled($exerciseData['exercise_id'] ?? null) && ! Exercise::active()->whereKey($exerciseData['exercise_id'])->exists()) {
                     throw ValidationException::withMessages([
-                        "days.{$dayIndex}.exercises.{$exerciseIndex}.exercise_id" => 'A new set row can only reference an active exercise.',
+                        "days.{$dayIndex}.exercises.{$exerciseIndex}.exercise_id" => 'Una nueva fila de serie solo puede referenciar un ejercicio activo.',
                     ]);
                 }
             }

@@ -156,7 +156,7 @@ it('shows the linked account and its active status in the detail view', function
     $unlinked = Client::factory()->create();
     Livewire::actingAs($admin)
         ->test(ViewClient::class, ['record' => $unlinked->getRouteKey()])
-        ->assertSee('No account');
+        ->assertSee('Sin cuenta');
 
     $linked = Client::factory()->create();
     app(ProvisionClientUser::class)->handle($linked, 'linked@gym.test', 'password');
@@ -164,14 +164,14 @@ it('shows the linked account and its active status in the detail view', function
     Livewire::actingAs($admin)
         ->test(ViewClient::class, ['record' => $linked->getRouteKey()])
         ->assertSee('linked@gym.test')
-        ->assertSee('Active');
+        ->assertSee('Activo');
 
     $linked->user->update(['is_active' => false]);
 
     Livewire::actingAs($admin)
         ->test(ViewClient::class, ['record' => $linked->getRouteKey()])
         ->assertSee('linked@gym.test')
-        ->assertSee('Inactive');
+        ->assertSee('Inactivo');
 });
 
 it('leaves the client record intact when the linked user is deactivated', function () {

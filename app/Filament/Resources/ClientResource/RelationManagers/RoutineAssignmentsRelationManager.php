@@ -11,7 +11,7 @@ class RoutineAssignmentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'routineAssignments';
 
-    protected static ?string $title = 'Routines';
+    protected static ?string $title = 'Rutinas';
 
     /**
      * The client's routine-assignment history (SPEC-010 FR-011 client side,
@@ -32,12 +32,13 @@ class RoutineAssignmentsRelationManager extends RelationManager
             ->recordTitleAttribute('id')
             ->columns([
                 Tables\Columns\TextColumn::make('routine.name')
-                    ->label('Routine')
+                    ->label('Rutina')
                     ->formatStateUsing(fn (?string $state, RoutineAssignment $record): string => $state === null ? '—' : $state.' — v'.$record->routine?->version_number),
                 Tables\Columns\TextColumn::make('assigned_at')
+                    ->label('Asignado el')
                     ->dateTime(),
                 Tables\Columns\IconColumn::make('is_active')
-                    ->label('Active')
+                    ->label('Activo')
                     ->boolean(),
             ])
             ->defaultSort('assigned_at', 'desc')

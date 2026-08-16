@@ -145,7 +145,7 @@ it('never oversells the last spot when two booking attempts race', function () {
         app(CreateBooking::class)->handle($clientB->id, $turno->id);
         $this->fail('Expected the second racing booking to be rejected.');
     } catch (ValidationException $e) {
-        expect($e->errors()['turno_id'][0])->toContain('full');
+        expect($e->errors()['turno_id'][0])->toContain('lleno');
     }
 
     expect(Booking::confirmedCountForTurno($turno->id))->toBe(1);

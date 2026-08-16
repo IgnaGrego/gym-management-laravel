@@ -43,6 +43,22 @@ class Client extends Model
     public const STATUS_REJECTED = 'rejected';
 
     /**
+     * Client-status display labels (presentation only; SPEC-016 FR-006,
+     * ADR-009). Keyed by the stored identifier; the persisted value is never
+     * changed.
+     *
+     * @return array<string, string>
+     */
+    public static function statusLabels(): array
+    {
+        return [
+            static::STATUS_PENDING => 'Pendiente',
+            static::STATUS_ACTIVE => 'Activo',
+            static::STATUS_REJECTED => 'Rechazado',
+        ];
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * user_id is intentionally NOT fillable: the optional 1:1 link to a User
@@ -142,7 +158,7 @@ class Client extends Model
     public function approve(): void
     {
         if ($this->status !== static::STATUS_PENDING) {
-            throw new DomainException('Only a pending client can be approved.');
+            throw new DomainException('Solo un cliente pendiente puede ser aprobado.');
         }
 
         DB::transaction(function (): void {
@@ -167,7 +183,7 @@ class Client extends Model
     public function reject(): void
     {
         if ($this->status !== static::STATUS_PENDING) {
-            throw new DomainException('Only a pending client can be rejected.');
+            throw new DomainException('Solo un cliente pendiente puede ser rechazado.');
         }
 
         $this->status = static::STATUS_REJECTED;

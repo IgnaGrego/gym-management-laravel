@@ -19,9 +19,13 @@ class ExerciseResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
-    protected static ?string $navigationLabel = 'Exercises';
+    protected static ?string $navigationLabel = 'Ejercicios';
 
-    protected static ?string $navigationGroup = 'Training';
+    protected static ?string $navigationGroup = 'Entrenamiento';
+
+    protected static ?string $modelLabel = 'Ejercicio';
+
+    protected static ?string $pluralModelLabel = 'Ejercicios';
 
     /**
      * Exercise create/edit form (SPEC-009 FR-001, FR-004).
@@ -47,29 +51,34 @@ class ExerciseResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Exercise')
+                Forms\Components\Section::make('Ejercicio')
                     ->schema([
                         Forms\Components\TextInput::make('name')
+                            ->label('Nombre')
                             ->required()
                             ->maxLength(255)
                             ->unique(ignoreRecord: true),
                         Forms\Components\Select::make('muscle_group')
-                            ->label('Muscle group')
+                            ->label('Grupo muscular')
                             ->options(Exercise::muscleGroupLabels())
                             ->required()
                             ->rule('in:'.implode(',', Exercise::muscleGroups())),
                         Forms\Components\TextInput::make('equipment')
+                            ->label('Equipamiento')
                             ->maxLength(255),
                         Forms\Components\Select::make('difficulty')
+                            ->label('Dificultad')
                             ->options(Exercise::difficultyLabels())
                             ->nullable()
                             ->rule('in:'.implode(',', Exercise::difficulties())),
-                        Forms\Components\Textarea::make('instructions'),
+                        Forms\Components\Textarea::make('instructions')
+                            ->label('Instrucciones'),
                         Forms\Components\TextInput::make('video_url')
-                            ->label('Video URL')
+                            ->label('URL del video')
                             ->url()
                             ->rule('url:http,https'),
                         Forms\Components\Toggle::make('is_active')
+                            ->label('Activo')
                             ->default(true),
                     ])
                     ->columns(2),
@@ -89,30 +98,34 @@ class ExerciseResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('Exercise')
+                Infolists\Components\Section::make('Ejercicio')
                     ->schema([
-                        Infolists\Components\TextEntry::make('name'),
+                        Infolists\Components\TextEntry::make('name')
+                            ->label('Nombre'),
                         Infolists\Components\TextEntry::make('muscle_group')
-                            ->label('Muscle group')
+                            ->label('Grupo muscular')
                             ->badge()
                             ->formatStateUsing(fn (?string $state): ?string => static::muscleGroupLabel($state)),
                         Infolists\Components\TextEntry::make('equipment')
+                            ->label('Equipamiento')
                             ->placeholder('—'),
                         Infolists\Components\TextEntry::make('difficulty')
+                            ->label('Dificultad')
                             ->badge()
                             ->placeholder('—')
                             ->formatStateUsing(fn (?string $state): ?string => static::difficultyLabel($state)),
                         Infolists\Components\TextEntry::make('instructions')
+                            ->label('Instrucciones')
                             ->placeholder('—'),
                         Infolists\Components\TextEntry::make('video_url')
-                            ->label('Video URL')
+                            ->label('URL del video')
                             ->placeholder('—')
                             ->url(fn (?string $state): ?string => filled($state) ? $state : null, true),
                         Infolists\Components\TextEntry::make('is_active')
-                            ->label('Status')
+                            ->label('Estado')
                             ->badge()
                             ->color(fn (bool $state): string => $state ? 'success' : 'danger')
-                            ->formatStateUsing(fn (bool $state): string => $state ? 'Active' : 'Inactive'),
+                            ->formatStateUsing(fn (bool $state): string => $state ? 'Activo' : 'Inactivo'),
                     ])
                     ->columns(2),
             ]);
@@ -137,43 +150,49 @@ class ExerciseResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nombre')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('muscle_group')
-                    ->label('Muscle group')
+                    ->label('Grupo muscular')
                     ->badge()
                     ->sortable()
                     ->formatStateUsing(fn (?string $state): ?string => static::muscleGroupLabel($state)),
                 Tables\Columns\TextColumn::make('equipment')
+                    ->label('Equipamiento')
                     ->searchable()
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('difficulty')
+                    ->label('Dificultad')
                     ->badge()
                     ->placeholder('—')
                     ->formatStateUsing(fn (?string $state): ?string => static::difficultyLabel($state)),
                 Tables\Columns\TextColumn::make('video_url')
-                    ->label('Video URL')
+                    ->label('URL del video')
                     ->placeholder('—')
                     ->limit(30)
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('instructions')
+                    ->label('Instrucciones')
                     ->placeholder('—')
                     ->limit(50)
                     ->toggleable(),
                 Tables\Columns\IconColumn::make('is_active')
+                    ->label('Activo')
                     ->boolean(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('muscle_group')
-                    ->label('Muscle group')
+                    ->label('Grupo muscular')
                     ->options(Exercise::muscleGroupLabels()),
                 Tables\Filters\SelectFilter::make('difficulty')
+                    ->label('Dificultad')
                     ->options(Exercise::difficultyLabels()),
                 Tables\Filters\SelectFilter::make('is_active')
-                    ->label('Status')
+                    ->label('Estado')
                     ->options([
-                        true => 'Active',
-                        false => 'Inactive',
+                        true => 'Activo',
+                        false => 'Inactivo',
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if (blank($data['value'] ?? null)) {
@@ -187,7 +206,7 @@ class ExerciseResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('deactivate')
-                    ->label('Deactivate')
+                    ->label('Desactivar')
                     ->icon('heroicon-o-arrow-down-circle')
                     ->color('warning')
                     ->requiresConfirmation()
@@ -195,7 +214,7 @@ class ExerciseResource extends Resource
                     ->authorize(fn (Exercise $record): bool => auth()->user()->can('update', $record))
                     ->action(fn (Exercise $record) => $record->update(['is_active' => false])),
                 Tables\Actions\Action::make('activate')
-                    ->label('Activate')
+                    ->label('Activar')
                     ->icon('heroicon-o-arrow-up-circle')
                     ->color('success')
                     ->requiresConfirmation()

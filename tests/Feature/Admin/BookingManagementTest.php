@@ -358,7 +358,7 @@ it('lets ADMIN view the full booking detail', function () {
         ->assertSee('Booking Client')
         ->assertSee('12345678')
         ->assertSee('Franja detalle')
-        ->assertSee('Confirmed')
+        ->assertSee('Confirmada')
         ->assertSee($admin->name)
         ->assertSee('Nota detalle');
 });

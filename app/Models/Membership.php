@@ -30,6 +30,23 @@ class Membership extends Model
     public const STATUS_CANCELLED = 'cancelled';
 
     /**
+     * Membership-status display labels (presentation only; SPEC-016 FR-006,
+     * ADR-009). Keyed by the stored identifier; the persisted value is never
+     * changed.
+     *
+     * @return array<string, string>
+     */
+    public static function statusLabels(): array
+    {
+        return [
+            static::STATUS_PENDING => 'Pendiente',
+            static::STATUS_ACTIVE => 'Activo',
+            static::STATUS_EXPIRED => 'Vencida',
+            static::STATUS_CANCELLED => 'Cancelada',
+        ];
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * end_date is fillable so the creating hook and explicit factory values
@@ -163,11 +180,11 @@ class Membership extends Model
     public function activate(): void
     {
         if ($this->status !== static::STATUS_PENDING) {
-            throw new DomainException('Only a pending membership can be activated.');
+            throw new DomainException('Solo una membresía pendiente puede activarse.');
         }
 
         if ($this->end_date < Carbon::today()) {
-            throw new DomainException('A membership cannot be activated after its end date has passed.');
+            throw new DomainException('Una membresía no puede activarse después de que haya pasado su fecha de fin.');
         }
 
         $this->status = static::STATUS_ACTIVE;
@@ -185,7 +202,7 @@ class Membership extends Model
     public function cancel(): void
     {
         if (! in_array($this->status, [static::STATUS_PENDING, static::STATUS_ACTIVE], true)) {
-            throw new DomainException('Only pending or active memberships can be cancelled.');
+            throw new DomainException('Solo las membresías pendientes o activas pueden cancelarse.');
         }
 
         DB::transaction(function (): void {

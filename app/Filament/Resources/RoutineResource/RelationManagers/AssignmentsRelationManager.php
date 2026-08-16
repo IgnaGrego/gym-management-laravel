@@ -11,7 +11,7 @@ class AssignmentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'assignments';
 
-    protected static ?string $title = 'Assigned clients';
+    protected static ?string $title = 'Clientes asignados';
 
     /**
      * The clients assigned to this routine version (SPEC-010 FR-011) — for a
@@ -33,18 +33,19 @@ class AssignmentsRelationManager extends RelationManager
             ->recordTitleAttribute('id')
             ->columns([
                 Tables\Columns\TextColumn::make('client.full_name')
-                    ->label('Client')
+                    ->label('Cliente')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('assigned_at')
+                    ->label('Asignado el')
                     ->dateTime(),
                 Tables\Columns\IconColumn::make('is_active')
-                    ->label('Active')
+                    ->label('Activo')
                     ->boolean(),
             ])
             ->defaultSort('assigned_at', 'desc')
             ->actions([
                 Tables\Actions\Action::make('unassign')
-                    ->label('Unassign')
+                    ->label('Desasignar')
                     ->icon('heroicon-o-x-circle')
                     ->color('warning')
                     ->requiresConfirmation()

@@ -76,8 +76,8 @@ it('lists own memberships in chronological order by start date', function () {
         ->get('/portal/memberships')
         ->assertOk()
         ->assertSeeInOrder(['Early Plan', 'Late Plan'])
-        ->assertSee(Membership::STATUS_ACTIVE)
-        ->assertSee(Membership::STATUS_EXPIRED);
+        ->assertSee('Activo')
+        ->assertSee('Vencida');
 });
 
 it('lists own cuotas and payments with amount, status, method and date only', function () {
@@ -108,8 +108,8 @@ it('lists own cuotas and payments with amount, status, method and date only', fu
         ->assertOk()
         ->assertSee('Pay Plan')
         ->assertSee('1500.00')
-        ->assertSee(Payment::METHOD_TRANSFER)
-        ->assertSee(Payment::STATUS_CONFIRMED)
+        ->assertSee('Transferencia bancaria')
+        ->assertSee('Confirmado')
         ->assertDontSee('REF-12345')
         ->assertDontSee('Internal audit note')
         ->assertDontSee($staff->name);
@@ -166,10 +166,10 @@ it('lists own bookings with status and turno details', function () {
     $this->actingAs($client->user)
         ->get('/portal/bookings')
         ->assertOk()
-        ->assertSee(Booking::STATUS_CONFIRMED)
-        ->assertSee(Booking::STATUS_CANCELLED)
+        ->assertSee('Confirmada')
+        ->assertSee('Cancelada')
         ->assertSee($turno->date->format('Y-m-d'))
-        ->assertSee('Cancel booking');
+        ->assertSee('Cancelar reserva');
 });
 
 it('shows the current routine read-only with days and set rows', function () {
@@ -182,7 +182,7 @@ it('shows the current routine read-only with days and set rows', function () {
         ->assertOk()
         ->assertSee('Bench Press Routine')
         ->assertSee('Bench Press')
-        ->assertSee('Day 1')
+        ->assertSee('Día 1')
         ->assertSee('10')
         ->assertSee('60.00')
         ->assertSee('Prescription note');
@@ -195,7 +195,7 @@ it('shows an empty state when the client has no active assignment', function () 
     $this->actingAs($client->user)
         ->get('/portal/routine')
         ->assertOk()
-        ->assertSee('You have no assigned routine yet.');
+        ->assertSee('Aún no tienes una rutina asignada.');
 });
 
 it('lists own workout history without the staff target/actual comparison', function () {
@@ -220,5 +220,5 @@ it('lists own workout history without the staff target/actual comparison', funct
         ->assertSee('Heavy set')
         ->assertSee('100.00')
         ->assertSee('5')
-        ->assertDontSee('Target');
+        ->assertDontSee('Objetivo');
 });

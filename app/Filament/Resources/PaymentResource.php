@@ -24,9 +24,13 @@ class PaymentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
 
-    protected static ?string $navigationLabel = 'Payments';
+    protected static ?string $navigationLabel = 'Pagos';
 
-    protected static ?string $navigationGroup = 'Commercial';
+    protected static ?string $navigationGroup = 'Comercial';
+
+    protected static ?string $modelLabel = 'Pago';
+
+    protected static ?string $pluralModelLabel = 'Pagos';
 
     /**
      * Payment create form (SPEC-005 FR-004, BR-004, BR-007).
@@ -47,7 +51,7 @@ class PaymentResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Payment')
+                Forms\Components\Section::make('Pago')
                     ->schema([
                         Forms\Components\Select::make('cuota_id')
                             ->label('Cuota')
@@ -67,27 +71,27 @@ class PaymentResource extends Resource
                                 $set('amount', $state ? Cuota::find($state)?->amount : null);
                             }),
                         Forms\Components\TextInput::make('amount')
+                            ->label('Monto')
                             ->numeric()
                             ->required()
                             ->minValue(0.01),
                         Forms\Components\Select::make('method')
-                            ->options([
-                                Payment::METHOD_CASH => 'Cash',
-                                Payment::METHOD_TRANSFER => 'Bank transfer',
-                            ])
+                            ->label('Método')
+                            ->options(Payment::methodLabels())
                             ->in([Payment::METHOD_CASH, Payment::METHOD_TRANSFER])
                             ->required()
                             ->live(),
                         Forms\Components\TextInput::make('reference')
-                            ->label('Reference')
+                            ->label('Referencia')
                             ->requiredIf('method', Payment::METHOD_TRANSFER)
                             ->hidden(fn (Get $get): bool => $get('method') !== Payment::METHOD_TRANSFER),
                         Forms\Components\DatePicker::make('payment_date')
-                            ->label('Payment date')
+                            ->label('Fecha de pago')
                             ->required()
                             ->default(now()->toDateString())
                             ->beforeOrEqual('today'),
-                        Forms\Components\Textarea::make('notes'),
+                        Forms\Components\Textarea::make('notes')
+                            ->label('Notas'),
                     ])
                     ->columns(2),
             ]);
@@ -105,32 +109,40 @@ class PaymentResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('Payment')
+                Infolists\Components\Section::make('Pago')
                     ->schema([
                         Infolists\Components\TextEntry::make('cuota.membership.client.full_name')
-                            ->label('Client'),
+                            ->label('Cliente'),
                         Infolists\Components\TextEntry::make('cuota.membership.client.dni')
                             ->label('DNI'),
                         Infolists\Components\TextEntry::make('cuota.membership.plan.name')
                             ->label('Plan'),
                         Infolists\Components\TextEntry::make('amount')
+                            ->label('Monto')
                             ->numeric(decimalPlaces: 2),
                         Infolists\Components\TextEntry::make('method')
+                            ->label('Método')
                             ->badge()
-                            ->color(fn (string $state): string => $state === Payment::METHOD_CASH ? 'success' : 'info'),
+                            ->color(fn (string $state): string => $state === Payment::METHOD_CASH ? 'success' : 'info')
+                            ->formatStateUsing(fn (string $state): string => Payment::methodLabels()[$state] ?? $state),
                         Infolists\Components\TextEntry::make('payment_date')
+                            ->label('Fecha de pago')
                             ->date('Y-m-d'),
                         Infolists\Components\TextEntry::make('reference')
+                            ->label('Referencia')
                             ->placeholder('—'),
                         Infolists\Components\TextEntry::make('notes')
+                            ->label('Notas')
                             ->placeholder('—'),
                         Infolists\Components\TextEntry::make('status')
+                            ->label('Estado')
                             ->badge()
                             ->color(fn (string $state): string => $state === Payment::STATUS_CONFIRMED ? 'success' : 'gray')
-                            ->formatStateUsing(fn (string $state): string => ucfirst($state)),
+                            ->formatStateUsing(fn (string $state): string => Payment::statusLabels()[$state] ?? $state),
                         Infolists\Components\TextEntry::make('recordedBy.name')
-                            ->label('Recorded by'),
+                            ->label('Registrado por'),
                         Infolists\Components\TextEntry::make('created_at')
+                            ->label('Creado el')
                             ->dateTime('Y-m-d H:i'),
                     ])
                     ->columns(2),
@@ -149,7 +161,7 @@ class PaymentResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('cuota.membership.client.full_name')
-                    ->label('Client')
+                    ->label('Cliente')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('cuota.membership.client.dni')
                     ->label('DNI')
@@ -157,40 +169,44 @@ class PaymentResource extends Resource
                 Tables\Columns\TextColumn::make('cuota.membership.plan.name')
                     ->label('Plan'),
                 Tables\Columns\TextColumn::make('amount')
+                    ->label('Monto')
                     ->numeric(decimalPlaces: 2),
                 Tables\Columns\TextColumn::make('method')
+                    ->label('Método')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         Payment::METHOD_CASH => 'success',
                         Payment::METHOD_TRANSFER => 'info',
                         default => 'gray',
-                    }),
+                    })
+                    ->formatStateUsing(fn (string $state): string => Payment::methodLabels()[$state] ?? $state),
                 Tables\Columns\TextColumn::make('payment_date')
+                    ->label('Fecha de pago')
                     ->date('Y-m-d'),
                 Tables\Columns\TextColumn::make('reference')
+                    ->label('Referencia')
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('status')
+                    ->label('Estado')
                     ->badge()
-                    ->color(fn (string $state): string => $state === Payment::STATUS_CONFIRMED ? 'success' : 'gray'),
+                    ->color(fn (string $state): string => $state === Payment::STATUS_CONFIRMED ? 'success' : 'gray')
+                    ->formatStateUsing(fn (string $state): string => Payment::statusLabels()[$state] ?? $state),
                 Tables\Columns\TextColumn::make('recordedBy.name')
-                    ->label('Recorded by'),
+                    ->label('Registrado por'),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('method')
-                    ->options([
-                        Payment::METHOD_CASH => 'Cash',
-                        Payment::METHOD_TRANSFER => 'Bank transfer',
-                    ]),
+                    ->label('Método')
+                    ->options(Payment::methodLabels()),
                 Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        Payment::STATUS_PENDING => 'Pending',
-                        Payment::STATUS_CONFIRMED => 'Confirmed',
-                        Payment::STATUS_FAILED => 'Failed',
-                    ]),
+                    ->label('Estado')
+                    ->options(Payment::statusLabels()),
                 Tables\Filters\Filter::make('payment_date')
                     ->form([
-                        Forms\Components\DatePicker::make('payment_from'),
-                        Forms\Components\DatePicker::make('payment_until'),
+                        Forms\Components\DatePicker::make('payment_from')
+                            ->label('Desde'),
+                        Forms\Components\DatePicker::make('payment_until')
+                            ->label('Hasta'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query

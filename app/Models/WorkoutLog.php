@@ -56,6 +56,22 @@ class WorkoutLog extends Model
     }
 
     /**
+     * Workout reference-type display labels (presentation only; SPEC-016
+     * FR-006, ADR-009). The reference type is a transient form/filter toggle
+     * (never persisted); this map keeps the two WorkoutLogResource option
+     * lists consistent.
+     *
+     * @return array<string, string>
+     */
+    public static function referenceTypeLabels(): array
+    {
+        return [
+            'routine' => 'Desde rutina asignada',
+            'free' => 'Ejercicio libre',
+        ];
+    }
+
+    /**
      * The client this log records (BR-001, BR-002).
      */
     public function client(): BelongsTo
@@ -167,7 +183,7 @@ class WorkoutLog extends Model
             $client = Client::find($clientId);
 
             if (! $client || ! $client->hasRoutineAssignmentTo($routineExercise->routineDay->routine->id)) {
-                $fail('This set belongs to a routine version the client has never been assigned to.');
+                $fail('Esta serie pertenece a una versión de rutina a la que el cliente nunca fue asignado.');
             }
         }];
     }
@@ -189,7 +205,7 @@ class WorkoutLog extends Model
             }
 
             if (! Exercise::active()->whereKey($value)->exists()) {
-                $fail('A free log can only reference an active exercise.');
+                $fail('Un registro libre solo puede referenciar un ejercicio activo.');
             }
         }];
     }

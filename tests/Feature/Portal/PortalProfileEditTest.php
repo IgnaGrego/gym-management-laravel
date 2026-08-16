@@ -91,7 +91,7 @@ it('shows the client their own health notes read-only', function () {
         ->assertOk()
         ->assertSee('Knee injury')
         ->assertSee('Asthma')
-        ->assertSee('Health notes');
+        ->assertSee('Notas de salud');
 });
 
 it('never exposes another client health notes', function () {

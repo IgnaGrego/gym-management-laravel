@@ -25,7 +25,7 @@ class ViewMembership extends ViewRecord
     {
         return [
             Actions\Action::make('cancel')
-                ->label('Cancel')
+                ->label('Cancelar')
                 ->icon('heroicon-o-x-circle')
                 ->color('danger')
                 ->requiresConfirmation()
@@ -33,18 +33,18 @@ class ViewMembership extends ViewRecord
                 ->authorize(fn (Membership $record): bool => auth()->user()->can('update', $record))
                 ->action(fn (Membership $record) => $record->cancel()),
             Actions\Action::make('renew')
-                ->label('Renew')
+                ->label('Renovar')
                 ->icon('heroicon-o-arrow-path')
                 ->color('primary')
                 ->visible(fn (Membership $record): bool => in_array($record->status, [Membership::STATUS_ACTIVE, Membership::STATUS_EXPIRED], true))
                 ->authorize(fn (): bool => auth()->user()->can('create', Membership::class))
                 ->form([
                     Forms\Components\DatePicker::make('start_date')
-                        ->label('Start date')
+                        ->label('Fecha de inicio')
                         ->required()
                         ->default(fn (Membership $record): string => $record->end_date->copy()->addDay()->toDateString()),
                     Forms\Components\TextInput::make('duration_days')
-                        ->label('Duration (days)')
+                        ->label('Duración (días)')
                         ->numeric()
                         ->required()
                         ->integer()

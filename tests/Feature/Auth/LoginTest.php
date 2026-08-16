@@ -15,7 +15,7 @@ it('shows the login form to guests', function () {
 
     $this->get('/login')
         ->assertOk()
-        ->assertSee('Log in');
+        ->assertSee('Iniciar sesión');
 });
 
 it('logs in an ADMIN user and redirects to the admin panel', function () {
@@ -107,7 +107,7 @@ it('uses the identical message whether the email exists or not', function () {
     $wrongPasswordMessage = session('errors')->get('email')[0];
 
     expect($unknownMessage)->toBe($wrongPasswordMessage);
-    expect($unknownMessage)->toBe('These credentials do not match our records.');
+    expect($unknownMessage)->toBe('Estas credenciales no coinciden con nuestros registros.');
 });
 
 it('rejects a deactivated user with the same generic message', function () {

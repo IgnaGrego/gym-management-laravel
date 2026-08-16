@@ -18,15 +18,15 @@ it('shows the authenticated CLIENT their portal with navigation', function () {
     $this->actingAs($client->user)
         ->get('/portal')
         ->assertOk()
-        ->assertSee('Client portal')
+        ->assertSee('Portal del cliente')
         ->assertSee('El Area Gym')
-        ->assertSee('Memberships')
-        ->assertSee('Payments')
-        ->assertSee('Attendance')
-        ->assertSee('Bookings')
-        ->assertSee('Routine')
-        ->assertSee('Workouts')
-        ->assertSee('Profile');
+        ->assertSee('Membresías')
+        ->assertSee('Pagos')
+        ->assertSee('Asistencia')
+        ->assertSee('Reservas')
+        ->assertSee('Rutina')
+        ->assertSee('Entrenamientos')
+        ->assertSee('Perfil');
 });
 
 it('redirects anonymous visitors to the login page', function () {
@@ -62,6 +62,6 @@ it('shows the ERR-005 notice and no business content on every section when unlin
             ->get($path)
             ->assertOk()
             ->assertSee('Perfil no disponible. Contactá a recepción.')
-            ->assertDontSee('Not provided');
+            ->assertDontSee('No informado');
     }
 });

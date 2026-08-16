@@ -20,9 +20,13 @@ class BookingResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-calendar';
 
-    protected static ?string $navigationLabel = 'Bookings';
+    protected static ?string $navigationLabel = 'Reservas';
 
-    protected static ?string $navigationGroup = 'Bookings';
+    protected static ?string $navigationGroup = 'Reservas';
+
+    protected static ?string $modelLabel = 'Reserva';
+
+    protected static ?string $pluralModelLabel = 'Reservas';
 
     /**
      * Booking create form (SPEC-007 FR-001).
@@ -41,10 +45,10 @@ class BookingResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Booking')
+                Forms\Components\Section::make('Reserva')
                     ->schema([
                         Forms\Components\Select::make('client_id')
-                            ->label('Client')
+                            ->label('Cliente')
                             ->relationship('client', 'full_name')
                             ->searchable(['full_name', 'dni'])
                             ->preload()
@@ -58,6 +62,7 @@ class BookingResource extends Resource
                             ->required()
                             ->exists('turnos', 'id'),
                         Forms\Components\Textarea::make('notes')
+                            ->label('Notas')
                             ->maxLength(500),
                     ])
                     ->columns(2),
@@ -76,25 +81,28 @@ class BookingResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('Booking')
+                Infolists\Components\Section::make('Reserva')
                     ->schema([
                         Infolists\Components\TextEntry::make('client.full_name')
-                            ->label('Client'),
+                            ->label('Cliente'),
                         Infolists\Components\TextEntry::make('client.dni')
                             ->label('DNI'),
                         Infolists\Components\TextEntry::make('turno_id')
                             ->label('Turno')
                             ->formatStateUsing(fn (mixed $state, Booking $record): string => $record->turno ? static::turnoLabel($record->turno) : '—'),
                         Infolists\Components\TextEntry::make('status')
+                            ->label('Estado')
                             ->badge()
                             ->color(fn (string $state): string => static::statusColor($state))
-                            ->formatStateUsing(fn (string $state): string => ucfirst($state)),
+                            ->formatStateUsing(fn (string $state): string => Booking::statusLabels()[$state] ?? $state),
                         Infolists\Components\TextEntry::make('booked_at')
+                            ->label('Reservado el')
                             ->dateTime('Y-m-d H:i'),
                         Infolists\Components\TextEntry::make('bookedBy.name')
-                            ->label('Booked by')
+                            ->label('Reservado por')
                             ->placeholder('—'),
                         Infolists\Components\TextEntry::make('notes')
+                            ->label('Notas')
                             ->placeholder('—'),
                     ])
                     ->columns(2),
@@ -115,7 +123,7 @@ class BookingResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('client.full_name')
-                    ->label('Client')
+                    ->label('Cliente')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('client.dni')
                     ->label('DNI')
@@ -124,16 +132,19 @@ class BookingResource extends Resource
                     ->label('Turno')
                     ->formatStateUsing(fn (mixed $state, Booking $record): string => $record->turno ? static::turnoLabel($record->turno) : '—'),
                 Tables\Columns\TextColumn::make('status')
+                    ->label('Estado')
                     ->badge()
                     ->color(fn (string $state): string => static::statusColor($state))
-                    ->formatStateUsing(fn (string $state): string => ucfirst($state)),
+                    ->formatStateUsing(fn (string $state): string => Booking::statusLabels()[$state] ?? $state),
                 Tables\Columns\TextColumn::make('booked_at')
+                    ->label('Reservado el')
                     ->dateTime('Y-m-d H:i')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('bookedBy.name')
-                    ->label('Booked by')
+                    ->label('Reservado por')
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('notes')
+                    ->label('Notas')
                     ->placeholder('—')
                     ->limit(50)
                     ->toggleable(),
@@ -141,19 +152,19 @@ class BookingResource extends Resource
             ->defaultSort('booked_at', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        Booking::STATUS_CONFIRMED => 'Confirmed',
-                        Booking::STATUS_CANCELLED => 'Cancelled',
-                    ]),
+                    ->label('Estado')
+                    ->options(Booking::statusLabels()),
                 Tables\Filters\SelectFilter::make('client_id')
-                    ->label('Client')
+                    ->label('Cliente')
                     ->relationship('client', 'full_name')
                     ->searchable(['full_name', 'dni'])
                     ->preload(),
                 Tables\Filters\Filter::make('turno_date')
                     ->form([
-                        Forms\Components\DatePicker::make('date_from'),
-                        Forms\Components\DatePicker::make('date_until'),
+                        Forms\Components\DatePicker::make('date_from')
+                            ->label('Desde'),
+                        Forms\Components\DatePicker::make('date_until')
+                            ->label('Hasta'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -170,7 +181,7 @@ class BookingResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\Action::make('cancel')
-                    ->label('Cancel')
+                    ->label('Cancelar')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->requiresConfirmation()

@@ -26,6 +26,21 @@ class Booking extends Model
     public const STATUS_CANCELLED = 'cancelled';
 
     /**
+     * Booking-status display labels (presentation only; SPEC-016 FR-006,
+     * ADR-009). Keyed by the stored identifier; the persisted value is never
+     * changed.
+     *
+     * @return array<string, string>
+     */
+    public static function statusLabels(): array
+    {
+        return [
+            static::STATUS_CONFIRMED => 'Confirmada',
+            static::STATUS_CANCELLED => 'Cancelada',
+        ];
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * status is fillable so the Action and factory can set it explicitly, but
@@ -122,7 +137,7 @@ class Booking extends Model
     public function cancel(): void
     {
         if ($this->status !== static::STATUS_CONFIRMED) {
-            throw new DomainException('Only a confirmed booking can be cancelled.');
+            throw new DomainException('Solo una reserva confirmada puede cancelarse.');
         }
 
         $this->status = static::STATUS_CANCELLED;

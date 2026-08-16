@@ -21,7 +21,7 @@
         @endif
 
         @if ($turnos->isEmpty())
-            <p class="mt-6 text-stone-600">No bookable turnos available right now.</p>
+            <p class="mt-6 text-stone-600">No hay turnos disponibles para reservar en este momento.</p>
         @else
             <ul class="mt-6 space-y-4">
                 @foreach ($turnos as $turno)
@@ -31,13 +31,13 @@
                             {{ $turno->start_time }}–{{ $turno->end_time }}
                         </p>
                         <p class="mt-1 text-sm text-stone-600">
-                            {{ $turno->capacity_limit - $turno->confirmed_count }} spots left
+                            {{ $turno->capacity_limit - $turno->confirmed_count }} cupos restantes
                         </p>
 
                         <form method="POST" action="{{ route('portal.turnos.book', $turno) }}" class="mt-3">
                             @csrf
                             <button type="submit" class="rounded-md bg-brand-600 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2">
-                                Book this turno
+                                Reservar este turno
                             </button>
                         </form>
                     </li>

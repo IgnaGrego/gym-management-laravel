@@ -29,6 +29,22 @@ class Cuota extends Model
     public const STATUS_CANCELLED = 'cancelled';
 
     /**
+     * Cuota-status display labels (presentation only; SPEC-016 FR-006,
+     * ADR-009). Keyed by the stored identifier; the persisted value is never
+     * changed.
+     *
+     * @return array<string, string>
+     */
+    public static function statusLabels(): array
+    {
+        return [
+            static::STATUS_PENDING => 'Pendiente',
+            static::STATUS_PAID => 'Pagada',
+            static::STATUS_CANCELLED => 'Cancelada',
+        ];
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * Status is normally set through markPaid()/cancel(); it stays fillable so
@@ -102,7 +118,7 @@ class Cuota extends Model
     public function markPaid(): void
     {
         if ($this->status !== self::STATUS_PENDING) {
-            throw new DomainException('Only a pending cuota can be marked as paid.');
+            throw new DomainException('Solo una cuota pendiente puede marcarse como pagada.');
         }
 
         $this->status = self::STATUS_PAID;
@@ -121,7 +137,7 @@ class Cuota extends Model
     public function cancel(): void
     {
         if ($this->status !== self::STATUS_PENDING) {
-            throw new DomainException('Only a pending cuota can be cancelled.');
+            throw new DomainException('Solo una cuota pendiente puede cancelarse.');
         }
 
         $this->status = self::STATUS_CANCELLED;
@@ -139,7 +155,7 @@ class Cuota extends Model
     public function updateAmount(string $amount): void
     {
         if ($this->status !== self::STATUS_PENDING) {
-            throw new DomainException('Only a pending cuota amount can be edited.');
+            throw new DomainException('Solo el monto de una cuota pendiente puede editarse.');
         }
 
         $this->amount = $amount;

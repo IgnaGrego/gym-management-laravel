@@ -24,9 +24,13 @@ class RoutineResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
 
-    protected static ?string $navigationLabel = 'Routines';
+    protected static ?string $navigationLabel = 'Rutinas';
 
-    protected static ?string $navigationGroup = 'Training';
+    protected static ?string $navigationGroup = 'Entrenamiento';
+
+    protected static ?string $modelLabel = 'Rutina';
+
+    protected static ?string $pluralModelLabel = 'Rutinas';
 
     /**
      * Routine create/edit form (SPEC-010 FR-001, FR-005, FR-006, FR-008).
@@ -62,9 +66,10 @@ class RoutineResource extends Resource
     public static function form(Form $form): Form
     {
         $schema = [
-            Forms\Components\Section::make('Routine')
+            Forms\Components\Section::make('Rutina')
                 ->schema([
                     Forms\Components\TextInput::make('name')
+                        ->label('Nombre')
                         ->required()
                         ->maxLength(255),
                 ]),
@@ -91,11 +96,11 @@ class RoutineResource extends Resource
         $isActiveRecord = $routine->status === Routine::STATUS_ACTIVE;
 
         $exercisesRepeater = Forms\Components\Repeater::make('exercises')
-            ->label('Sets')
+            ->label('Series')
             ->relationship('exercises')
             ->schema([
                 Forms\Components\Select::make('exercise_id')
-                    ->label('Exercise')
+                    ->label('Ejercicio')
                     ->options(fn (): array => static::exerciseOptions($routine))
                     ->searchable()
                     ->required()
@@ -106,42 +111,43 @@ class RoutineResource extends Resource
 
                         if ($isNewRow && filled($state) && ! Exercise::active()->whereKey($state)->exists()) {
                             return [static function (string $attribute, mixed $value, \Closure $fail): void {
-                                $fail('A new set row can only reference an active exercise.');
+                                $fail('Una nueva fila de serie solo puede referenciar un ejercicio activo.');
                             }];
                         }
 
                         return [];
                     }),
                 Forms\Components\TextInput::make('set_number')
-                    ->label('Set number')
+                    ->label('Número de serie')
                     ->required()
                     ->integer()
                     ->minValue(1)
                     ->distinct(),
                 Forms\Components\TextInput::make('target_reps')
-                    ->label('Target reps')
+                    ->label('Repeticiones objetivo')
                     ->required()
                     ->integer()
                     ->minValue(1),
                 Forms\Components\TextInput::make('target_weight')
-                    ->label('Target weight (kg)')
+                    ->label('Peso objetivo (kg)')
                     ->numeric()
                     ->minValue(0),
                 Forms\Components\TextInput::make('rest_seconds')
-                    ->label('Rest (seconds)')
+                    ->label('Descanso (segundos)')
                     ->integer()
                     ->minValue(0),
-                Forms\Components\Textarea::make('notes'),
+                Forms\Components\Textarea::make('notes')
+                    ->label('Notas'),
             ])
             ->columns(3)
             ->defaultItems(0);
 
         $daysRepeater = Forms\Components\Repeater::make('days')
-            ->label('Days')
+            ->label('Días')
             ->relationship('days')
             ->schema([
                 Forms\Components\TextInput::make('day_number')
-                    ->label('Day number')
+                    ->label('Número de día')
                     ->required()
                     ->integer()
                     ->minValue(1)
@@ -156,7 +162,7 @@ class RoutineResource extends Resource
             $exercisesRepeater->saveRelationshipsUsing(static fn () => null);
         }
 
-        return Forms\Components\Section::make('Days and sets')
+        return Forms\Components\Section::make('Días y series')
             ->schema([$daysRepeater]);
     }
 
@@ -174,56 +180,59 @@ class RoutineResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('Routine')
+                Infolists\Components\Section::make('Rutina')
                     ->schema([
-                        Infolists\Components\TextEntry::make('name'),
+                        Infolists\Components\TextEntry::make('name')
+                            ->label('Nombre'),
                         Infolists\Components\TextEntry::make('status')
+                            ->label('Estado')
                             ->badge()
                             ->color(fn (?string $state): string => static::statusColor($state))
-                            ->formatStateUsing(fn (?string $state): ?string => $state === null ? null : ucfirst($state)),
+                            ->formatStateUsing(fn (?string $state): ?string => $state === null ? null : (Routine::statusLabels()[$state] ?? $state)),
                         Infolists\Components\TextEntry::make('version_number')
-                            ->label('Version')
+                            ->label('Versión')
                             ->formatStateUsing(fn (?int $state): ?string => $state === null ? null : 'v'.$state),
                         Infolists\Components\TextEntry::make('creator.name')
-                            ->label('Created by')
+                            ->label('Creado por')
                             ->placeholder('—'),
                     ])
                     ->columns(2),
-                Infolists\Components\Section::make('Days')
+                Infolists\Components\Section::make('Días')
                     ->schema([
                         Infolists\Components\RepeatableEntry::make('days')
-                            ->label('Days')
+                            ->label('Días')
                             ->schema([
                                 Infolists\Components\TextEntry::make('day_number')
-                                    ->label('Day'),
+                                    ->label('Día'),
                                 Infolists\Components\RepeatableEntry::make('exercises')
-                                    ->label('Sets')
+                                    ->label('Series')
                                     ->schema([
                                         Infolists\Components\TextEntry::make('exercise.name')
-                                            ->label('Exercise'),
+                                            ->label('Ejercicio'),
                                         Infolists\Components\TextEntry::make('set_number')
-                                            ->label('Set'),
+                                            ->label('Serie'),
                                         Infolists\Components\TextEntry::make('target_reps')
-                                            ->label('Target reps'),
+                                            ->label('Repeticiones objetivo'),
                                         Infolists\Components\TextEntry::make('target_weight')
-                                            ->label('Target weight (kg)')
+                                            ->label('Peso objetivo (kg)')
                                             ->placeholder('—'),
                                         Infolists\Components\TextEntry::make('rest_seconds')
-                                            ->label('Rest (s)')
+                                            ->label('Descanso (s)')
                                             ->placeholder('—'),
                                         Infolists\Components\TextEntry::make('notes')
+                                            ->label('Notas')
                                             ->placeholder('—'),
                                     ])
                                     ->columns(3),
                             ])
                             ->columns(2),
                     ]),
-                Infolists\Components\Section::make('Version history')
+                Infolists\Components\Section::make('Historial de versiones')
                     ->schema([
                         Infolists\Components\TextEntry::make('version_history')
-                            ->label('Version history')
+                            ->label('Historial de versiones')
                             ->state(fn (Routine $record): array => $record->lineage()
-                                ->map(fn (Routine $version): string => 'v'.$version->version_number.' — '.ucfirst($version->status).' — '.($version->creator?->name ?? '—'))
+                                ->map(fn (Routine $version): string => 'v'.$version->version_number.' — '.(Routine::statusLabels()[$version->status] ?? $version->status).' — '.($version->creator?->name ?? '—'))
                                 ->values()
                                 ->all())
                             ->listWithLineBreaks(),
@@ -248,27 +257,26 @@ class RoutineResource extends Resource
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->lineageHeads())
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nombre')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
+                    ->label('Estado')
                     ->badge()
                     ->color(fn (?string $state): string => static::statusColor($state))
-                    ->formatStateUsing(fn (?string $state): ?string => $state === null ? null : ucfirst($state))
+                    ->formatStateUsing(fn (?string $state): ?string => $state === null ? null : (Routine::statusLabels()[$state] ?? $state))
                     ->sortable(),
                 Tables\Columns\TextColumn::make('version_number')
-                    ->label('Version')
+                    ->label('Versión')
                     ->formatStateUsing(fn (?int $state): ?string => $state === null ? null : 'v'.$state)
                     ->sortable(),
                 Tables\Columns\TextColumn::make('creator.name')
-                    ->label('Created by'),
+                    ->label('Creado por'),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
-                    ->options([
-                        Routine::STATUS_DRAFT => 'Draft',
-                        Routine::STATUS_ACTIVE => 'Active',
-                        Routine::STATUS_ARCHIVED => 'Archived',
-                    ]),
+                    ->label('Estado')
+                    ->options(Routine::statusLabels()),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

@@ -42,7 +42,7 @@ it('allows a CLIENT to access the client portal', function () {
     $this->actingAs($user)
         ->get('/portal')
         ->assertOk()
-        ->assertSee('Client portal');
+        ->assertSee('Portal del cliente');
 });
 
 it('blocks a staff-only user from the client portal', function () {

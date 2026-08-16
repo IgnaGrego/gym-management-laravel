@@ -19,7 +19,7 @@ class ClientProgress extends Page implements HasTable
 
     protected static string $view = 'filament.resources.workout-log-resource.pages.client-progress';
 
-    protected static ?string $navigationLabel = 'Client progress';
+    protected static ?string $navigationLabel = 'Progreso del cliente';
 
     public int $clientId;
 
@@ -49,7 +49,7 @@ class ClientProgress extends Page implements HasTable
     {
         $client = Client::find($this->clientId);
 
-        return 'Progress — '.($client?->full_name ?? 'Client');
+        return 'Progreso — '.($client?->full_name ?? 'Cliente');
     }
 
     public function table(Table $table): Table
@@ -63,30 +63,32 @@ class ClientProgress extends Page implements HasTable
             ->defaultSort('performed_at')
             ->columns([
                 Tables\Columns\TextColumn::make('performed_at')
+                    ->label('Realizado el')
                     ->dateTime('Y-m-d H:i')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('exercise_name')
-                    ->label('Exercise')
+                    ->label('Ejercicio')
                     ->state(fn (WorkoutLog $record): ?string => $record->exerciseName())
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('routineExercise.target_weight')
-                    ->label('Target weight (kg)')
+                    ->label('Peso objetivo (kg)')
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('routineExercise.target_reps')
-                    ->label('Target reps')
+                    ->label('Repeticiones objetivo')
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('actual_weight')
-                    ->label('Actual weight (kg)')
+                    ->label('Peso real (kg)')
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('actual_reps')
-                    ->label('Actual reps'),
+                    ->label('Repeticiones reales'),
                 Tables\Columns\TextColumn::make('notes')
+                    ->label('Notas')
                     ->placeholder('—')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('recordedBy.name')
-                    ->label('Recorded by'),
+                    ->label('Registrado por'),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Logged at')
+                    ->label('Registrado el')
                     ->dateTime('Y-m-d H:i'),
             ])
             ->actions([])
