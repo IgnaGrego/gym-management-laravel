@@ -14,7 +14,7 @@ it('renders the login form preserving the SPEC-001 contract', function () {
     $this->get('/login')
         ->assertOk()
         ->assertSee('Iniciar sesión')
-        ->assertSee('El Area Gym')
+        ->assertSee('Vital Gym')
         ->assertSee('method="POST"', false)
         ->assertSee(route('login'), false)
         ->assertSee('name="_token"', false)

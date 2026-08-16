@@ -1,4 +1,4 @@
-# El Area Gym
+# Vital Gym
 
 Sistema de gestión de gimnasios construido con Laravel, PostgreSQL y Filament.
 

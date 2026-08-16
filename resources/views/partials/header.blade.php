@@ -6,7 +6,7 @@
     <div class="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
         <a href="{{ route('home') }}" class="flex items-center gap-2 text-lg font-bold text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2">
             <span aria-hidden="true" class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-brand-600 font-bold text-white">EA</span>
-            El Area Gym
+            Vital Gym
         </a>
 
         <nav aria-label="Principal">

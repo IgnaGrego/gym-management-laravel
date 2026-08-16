@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Iniciar sesión - El Area Gym')
+@section('title', 'Iniciar sesión - Vital Gym')
 
 @section('content')
     <section class="mx-auto w-full max-w-md py-12">

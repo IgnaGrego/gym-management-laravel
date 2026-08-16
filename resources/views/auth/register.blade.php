@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Registrarse - El Area Gym</title>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Registrarse - Vital Gym</title>
 <style>body{font-family:system-ui,sans-serif;margin:0;background:#f3f4f6;color:#111827;display:flex;min-height:100vh;align-items:center;justify-content:center}form{background:#fff;padding:2rem;border-radius:.5rem;width:100%;max-width:520px;box-shadow:0 1px 3px #0002}label{display:block;margin:1rem 0 .25rem;font-size:.9rem;font-weight:600}input,textarea{width:100%;padding:.5rem;border:1px solid #d1d5db;border-radius:.4rem;box-sizing:border-box}textarea{min-height:4rem}.error{color:#b91c1c;font-size:.85rem}button{margin-top:1.5rem;width:100%;padding:.6rem;background:#111827;color:#fff;border:0;border-radius:.4rem}</style>
 </head><body><form method="POST" action="{{ route('register.store') }}">@csrf
 <h1>Crear una cuenta</h1>

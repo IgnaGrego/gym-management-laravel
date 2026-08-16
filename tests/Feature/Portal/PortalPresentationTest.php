@@ -25,7 +25,7 @@ it('shows the authenticated client their own profile data and status', function 
         ->get('/portal')
         ->assertOk()
         ->assertSee('Portal del cliente')
-        ->assertSee('El Area Gym')
+        ->assertSee('Vital Gym')
         ->assertSee('Juan Pérez')
         ->assertSee('12345678')
         ->assertSee('juan@example.com')

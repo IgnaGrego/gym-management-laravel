@@ -11,7 +11,7 @@ it('configures Spanish as the default locale with an English fallback and the gy
     expect(config('app.locale'))->toBe('es')
         ->and(config('app.fallback_locale'))->toBe('en')
         ->and(config('app.faker_locale'))->toBe('es_ES')
-        ->and(config('app.name'))->toBe('El Area Gym');
+        ->and(config('app.name'))->toBe('Vital Gym');
 });
 
 it('documents the Spanish locale values in .env.example', function () {
@@ -20,7 +20,7 @@ it('documents the Spanish locale values in .env.example', function () {
     expect($env)->toContain('APP_LOCALE=es')
         ->and($env)->toContain('APP_FALLBACK_LOCALE=en')
         ->and($env)->toContain('APP_FAKER_LOCALE=es_ES')
-        ->and($env)->toContain('APP_NAME="El Area Gym"');
+        ->and($env)->toContain('APP_NAME="Vital Gym"');
 });
 
 it('resolves the Laravel message catalogs to Spanish', function () {

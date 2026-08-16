@@ -12,7 +12,7 @@ beforeEach(function () {
 it('renders the landing page with the shared layout and branding', function () {
     $this->get('/')
         ->assertOk()
-        ->assertSee('El Area Gym')
+        ->assertSee('Vital Gym')
         ->assertSee('<title>', false)
         ->assertSee('<header', false)
         ->assertSee('<nav', false)

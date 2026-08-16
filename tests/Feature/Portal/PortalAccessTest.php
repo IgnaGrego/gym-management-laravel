@@ -19,7 +19,7 @@ it('shows the authenticated CLIENT their portal with navigation', function () {
         ->get('/portal')
         ->assertOk()
         ->assertSee('Portal del cliente')
-        ->assertSee('El Area Gym')
+        ->assertSee('Vital Gym')
         ->assertSee('Membresías')
         ->assertSee('Pagos')
         ->assertSee('Asistencia')
